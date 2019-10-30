@@ -13,8 +13,8 @@ scalaJSUseMainModuleInitializer := true
 scalacOptions += "-P:scalajs:sjsDefinedByDefault"
 
 libraryDependencies ++= Seq(
-
-
+  ScalablyTyped.D.d3,
+  ScalablyTyped.N.node
 )
 
 
