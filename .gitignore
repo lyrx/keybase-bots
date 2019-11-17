@@ -7,3 +7,4 @@ start.sh
 .idea/
 package-lock.json
 target/
+/nohup.out
