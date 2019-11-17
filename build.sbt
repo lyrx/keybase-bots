@@ -12,7 +12,8 @@ scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
 scalacOptions += "-P:scalajs:sjsDefinedByDefault"
 
 libraryDependencies ++= Seq(
-  ScalablyTyped.N.node
+  ScalablyTyped.N.node,
+  ScalablyTyped.M.mkdirp
   //, ScalablyTyped.F.fs
 )
 

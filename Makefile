@@ -6,5 +6,7 @@ loop:
 
 clean: 
 	@source ~/env.sh; sbt clean
+prepare:
+	npm install mkdirp
 
 

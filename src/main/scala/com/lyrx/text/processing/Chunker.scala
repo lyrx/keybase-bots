@@ -1,23 +1,26 @@
 package com.lyrx.text.processing
 
-import typings.node.{Buffer, process, fsMod => fs, readlineMod => readline}
-import typings.node.NodeJS.{ErrnoException, WritableStream}
-import typings.node.fsMod.ReadStream
-import typings.node.readlineMod.Interface
-
 import scala.scalajs.js
+import typings.node
+import node.fsMod.ReadStream
+import node.readlineMod.Interface
+import node.{fsMod => fs, readlineMod => readline}
+import typings.mkdirp.mkdirpMod.{Made, ^ => mkdirp}
+import typings.node.NodeJS.ErrnoException
+
 import js.annotation.{JSExport, JSExportTopLevel}
-import js.|
+import scala.concurrent
+import scala.concurrent.ExecutionContext
 @JSExportTopLevel("Chunker")
 object Main extends Chunker {
 
   type ArrayGet = Array[String] => Unit
   type HeaderDetection = String => Int
 
-
-  val may = "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources/books/KarlMay"
-val output = "/Users/alex/output"
-   val h:HeaderDetection = (line) => {
+  val may =
+    "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources/books/KarlMay"
+  val output = "/Users/alex/output"
+  val h: HeaderDetection = (line) => {
     val s = line.trim
 
     if (s.startsWith("####"))
@@ -31,17 +34,15 @@ val output = "/Users/alex/output"
     else
       0
   }
-
-
   @JSExport
   def initt(): Unit = {
-    toSections(fs.createReadStream(s"${may}/satanundischarioti.md"),
-         //  _.foreach(println)
-         map => {println(map.size)})(Context(
-      headerLevel = h,
-      name = "satanundischarioti",
-      outPath = output
-    ))
+    toSections(fs.createReadStream(s"${may}/satanundischarioti.md"))(
+      Context(
+        headerLevel = h,
+        name = "satanundischarioti",
+        outPath = output,
+        executionContext = ExecutionContext.global
+      ))
   }
 
 }
@@ -49,11 +50,11 @@ val output = "/Users/alex/output"
 case class Section(level: Int)
 
 case class Context(
-                    headerLevel: Main.HeaderDetection,
-                   name:String,
-                    outPath:String
-                  )
-
+    headerLevel: Main.HeaderDetection,
+    name: String,
+    outPath: String,
+    executionContext: ExecutionContext
+)
 
 trait Chunker {
 
@@ -64,29 +65,30 @@ trait Chunker {
     interface.on("close", (e) => onClosed(seq))
   }
 
-
-
-  def toFile(section: Section,array: Array[String])(implicit ctx: Context) = {
-
-  }
-
-
+  def toFile(section: Section, array: Array[String])(implicit ctx: Context) = {}
 
   def toFiles(readStream: ReadStream)(implicit ctx: Context) = {
-    toSections(readStream,m=>{})
+
+    toSections(readStream).map( mm=> {
+      mkdirp(s"${ctx.outPath}/${ctx.name}", (e: ErrnoException, m: Made) => {})
+    })(ctx.executionContext)
   }
 
   def toSections(
-      readStream: ReadStream,
-      cb: Map[Section, Array[String]] => Unit
-  )(implicit ctx: Context) =
+      readStream: ReadStream
+  )(implicit ctx: Context) = {
+
+    val p = concurrent.Promise[Map[Section, Array[String]]]()
+
     read(readStream, lines => {
       var counter = 0;
-      cb(lines.groupBy[Section]((line: String) => {
+      p.success(lines.groupBy[Section]((line: String) => {
         if (ctx.headerLevel(line) > 0)
           counter = counter + 1
         Section(counter)
       }))
     })
+    p.future
+  }
 
 }

@@ -9,7 +9,7 @@ object Main {
   @JSExport
   def initt(): Unit = {
 
-    val client = IpfsHttpClient("localhost",5001)
+   // val client = IpfsHttpClient("localhost",5001)
     println("youchai");
   }
 
