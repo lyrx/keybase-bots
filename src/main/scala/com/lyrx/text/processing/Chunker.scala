@@ -42,7 +42,7 @@ object Main extends Chunker {
         name = "satanundischarioti",
         outPath = output,
         executionContext = ExecutionContext.global
-      ))
+      )).map(m=>println(m.size))(ExecutionContext.global)
   }
 
 }
@@ -58,11 +58,16 @@ case class Context(
 
 trait Chunker {
 
-  def read(readStream: ReadStream, onClosed: Main.ArrayGet) = {
+  def read(readStream: ReadStream) = {
     val interface: Interface = readline.createInterface(readStream)
     var seq: Array[String] = Array()
+    val promise = concurrent.Promise[Array[String]]()
     interface.on("line", (s) => { seq = (seq :+ s.toString) })
-    interface.on("close", (e) => onClosed(seq))
+    interface.on("close", (e) => {
+      promise.success(seq)
+      ()
+    })
+    promise.future
   }
 
   def toFile(section: Section, array: Array[String])(implicit ctx: Context) = {}
@@ -80,14 +85,14 @@ trait Chunker {
 
     val p = concurrent.Promise[Map[Section, Array[String]]]()
 
-    read(readStream, lines => {
+    read(readStream).map( lines => {
       var counter = 0;
       p.success(lines.groupBy[Section]((line: String) => {
         if (ctx.headerLevel(line) > 0)
           counter = counter + 1
         Section(counter)
       }))
-    })
+    })(ctx.executionContext)
     p.future
   }
 
