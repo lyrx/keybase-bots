@@ -14,7 +14,7 @@ import scala.concurrent.ExecutionContext
 @JSExportTopLevel("Chunker")
 object Main extends Chunker {
 
-  type ArrayGet = Array[String] => Unit
+
   type HeaderDetection = String => Int
 
   val may =
