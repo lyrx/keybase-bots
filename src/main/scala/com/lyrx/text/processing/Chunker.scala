@@ -12,12 +12,12 @@ import js.|
 object Main extends Chunker {
 
   type ArrayGet = Array[String] => Unit
-  type HeaderLevel = String => Int
+  type HeaderDetection = String => Int
 
 
   val may = "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources/books/KarlMay"
-
-  implicit val ctx:Context = Context((line) => {
+val output = "/Users/alex/output"
+   val h:HeaderDetection = (line) => {
     val s = line.trim
 
     if (s.startsWith("####"))
@@ -30,21 +30,29 @@ object Main extends Chunker {
       1
     else
       0
-  })
+  }
 
 
   @JSExport
   def initt(): Unit = {
     toSections(fs.createReadStream(s"${may}/satanundischarioti.md"),
          //  _.foreach(println)
-         map => {println(map.size)})
+         map => {println(map.size)})(Context(
+      headerLevel = h,
+      name = "satanundischarioti",
+      outPath = output
+    ))
   }
 
 }
 
 case class Section(level: Int)
 
-case class Context(headerLevel: Main.HeaderLevel)
+case class Context(
+                    headerLevel: Main.HeaderDetection,
+                   name:String,
+                    outPath:String
+                  )
 
 
 trait Chunker {
@@ -54,6 +62,18 @@ trait Chunker {
     var seq: Array[String] = Array()
     interface.on("line", (s) => { seq = (seq :+ s.toString) })
     interface.on("close", (e) => onClosed(seq))
+  }
+
+
+
+  def toFile(section: Section,array: Array[String])(implicit ctx: Context) = {
+
+  }
+
+
+
+  def toFiles(readStream: ReadStream)(implicit ctx: Context) = {
+    toSections(readStream,m=>{})
   }
 
   def toSections(
