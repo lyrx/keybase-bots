@@ -17,7 +17,7 @@ object Main extends Chunker {
 
   val may = "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources/books/KarlMay"
 
-  implicit val headerLevel: HeaderLevel = (line) => {
+  implicit val ctx:Context = Context((line) => {
     val s = line.trim
 
     if (s.startsWith("####"))
@@ -30,7 +30,7 @@ object Main extends Chunker {
       1
     else
       0
-  }
+  })
 
 
   @JSExport
@@ -44,6 +44,9 @@ object Main extends Chunker {
 
 case class Section(level: Int)
 
+case class Context(headerLevel: Main.HeaderLevel)
+
+
 trait Chunker {
 
   def read(readStream: ReadStream, onClosed: Main.ArrayGet) = {
@@ -56,11 +59,11 @@ trait Chunker {
   def toSections(
       readStream: ReadStream,
       cb: Map[Section, Array[String]] => Unit
-  )(implicit headerLevel: Main.HeaderLevel) =
+  )(implicit ctx: Context) =
     read(readStream, lines => {
       var counter = 0;
       cb(lines.groupBy[Section]((line: String) => {
-        if (headerLevel(line) > 0)
+        if (ctx.headerLevel(line) > 0)
           counter = counter + 1
         Section(counter)
       }))
