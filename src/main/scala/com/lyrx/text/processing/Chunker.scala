@@ -123,10 +123,12 @@ trait Chunker {
 
     read(readStream).map( lines => {
       var counter = 0;
+      var aTitleOpt:Option[String]=None;
+      var headerLevel = -1
       p.success(lines.groupBy[Section]((line: String) => {
         val aLevel = ctx.headerLevel(line)
-        var aTitleOpt:Option[String]=None;
         if ( aLevel > 0) {
+          headerLevel = aLevel
           counter = counter + 1
           aTitleOpt=Some(
             line.
@@ -134,7 +136,7 @@ trait Chunker {
               trim
           )
         }
-        Section(level = aLevel,
+        Section(level = headerLevel,
           index = counter,
           metaData=ctx.metaData,
           fileOpt = None,
