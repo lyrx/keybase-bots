@@ -1,8 +1,8 @@
 
 all:
-	@source ~/env.sh; sbt fullOptJS
+	@source ~/env.sh; sbt fastOptJS
 loop:
-	@source ~/env.sh; sbt ~fullOptJS
+	@source ~/env.sh; sbt ~fastOptJS
 
 clean: 
 	@source ~/env.sh; sbt clean

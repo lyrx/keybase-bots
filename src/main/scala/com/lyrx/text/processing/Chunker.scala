@@ -9,8 +9,9 @@ import typings.mkdirp.mkdirpMod.{Made, ^ => mkdirp}
 import typings.node.NodeJS.ErrnoException
 
 import js.annotation.{JSExport, JSExportTopLevel}
+import scala.collection.immutable
 import scala.concurrent
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 @JSExportTopLevel("Chunker")
 object Main extends Chunker {
 
@@ -36,25 +37,32 @@ object Main extends Chunker {
   }
   @JSExport
   def initt(): Unit = {
-    toSections(fs.createReadStream(s"${may}/satanundischarioti.md"))(
+    toFiles(fs.createReadStream(s"${may}/satanundischarioti.md"))(
       Context(
         headerLevel = h,
-        name = "satanundischarioti",
+        metaData = MetaData(
+          name = "satanundischarioti"),
         outPath = output,
         executionContext = ExecutionContext.global
-      )).map(m=>println(m.size))(ExecutionContext.global)
+      ))
   }
 
 }
 
-case class Section(level: Int)
+case class Section(level: Int,
+                    index:Int,
+                   metaData: MetaData,
+                   fileOpt:Option[String]
+                  )
 
 case class Context(
     headerLevel: Main.HeaderDetection,
-    name: String,
+    metaData: MetaData,
     outPath: String,
     executionContext: ExecutionContext
 )
+
+case class MetaData(name: String)
 
 trait Chunker {
 
@@ -70,13 +78,38 @@ trait Chunker {
     promise.future
   }
 
-  def toFile(section: Section, array: Array[String])(implicit ctx: Context) = {}
+  def toFile(section: Section,
+             array: Array[String],
+             aDir:String
+            )(implicit ctx: Context) = {
+    val promise =concurrent.Promise[Section]()
+    val file:String = s"${aDir}/${section.metaData.name}_${section.index}.md"
+    fs.writeFile(file,
+      array.mkString("\n"),
+      (e)=>{
+        promise.success(section.copy(fileOpt=Some(file)))
+        ()
+      })
+    promise.future
+  }
 
   def toFiles(readStream: ReadStream)(implicit ctx: Context) = {
-
-    toSections(readStream).map( mm=> {
-      mkdirp(s"${ctx.outPath}/${ctx.name}", (e: ErrnoException, m: Made) => {})
+    val promise =concurrent.Promise[Future[Array[Section]]]()
+    toSections(readStream).map( aMap=> {
+      val aDir = s"${ctx.outPath}/${ctx.metaData.name}"
+      mkdirp (aDir,(e: ErrnoException, m: Made) => {
+        implicit val executionContext = ctx.executionContext
+        val fa = aMap.map(t=>{
+          val f = toFile(t._1,t._2,aDir)
+          f
+        })
+        val ff = Future.
+          sequence(fa).
+          map(_.toArray)
+        promise.success(ff)
+      })
     })(ctx.executionContext)
+    promise.future.flatten
   }
 
   def toSections(
@@ -88,9 +121,14 @@ trait Chunker {
     read(readStream).map( lines => {
       var counter = 0;
       p.success(lines.groupBy[Section]((line: String) => {
-        if (ctx.headerLevel(line) > 0)
+        val aLevel = ctx.headerLevel(line)
+        if ( aLevel > 0)
           counter = counter + 1
-        Section(counter)
+        Section(level = aLevel,
+          index = counter,
+          metaData=ctx.metaData,
+          fileOpt = None
+        )
       }))
     })(ctx.executionContext)
     p.future
