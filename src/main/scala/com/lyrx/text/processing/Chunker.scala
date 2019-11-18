@@ -44,7 +44,9 @@ object Main extends Chunker {
           name = "satanundischarioti"),
         outPath = output,
         executionContext = ExecutionContext.global
-      ))
+      )).map(
+      sections=>sections.foreach(section=>println(section))
+    )(ExecutionContext.global)
   }
 
 }
@@ -52,7 +54,8 @@ object Main extends Chunker {
 case class Section(level: Int,
                     index:Int,
                    metaData: MetaData,
-                   fileOpt:Option[String]
+                   fileOpt:Option[String],
+                   titleOpt:Option[String]
                   )
 
 case class Context(
@@ -122,12 +125,20 @@ trait Chunker {
       var counter = 0;
       p.success(lines.groupBy[Section]((line: String) => {
         val aLevel = ctx.headerLevel(line)
-        if ( aLevel > 0)
+        var aTitleOpt:Option[String]=None;
+        if ( aLevel > 0) {
           counter = counter + 1
+          aTitleOpt=Some(
+            line.
+              replaceAll("#","").
+              trim
+          )
+        }
         Section(level = aLevel,
           index = counter,
           metaData=ctx.metaData,
-          fileOpt = None
+          fileOpt = None,
+          titleOpt = aTitleOpt
         )
       }))
     })(ctx.executionContext)
