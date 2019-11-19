@@ -45,15 +45,30 @@ object Main extends Chunker {
   }
   @JSExport
   def initt(): Unit = {
-    toFiles(fs.createReadStream(s"${may}/satanundischarioti.md"))(
-      Context(
-        headerLevel = h,
-        metaData = MetaData(name = "satanundischarioti"),
-        outPath = output,
-        executionContext = ExecutionContext.global
-      )).map(
+    implicit val exc = ExecutionContext.global
+    implicit val ctx = Context(
+      headerLevel = h,
+      metaData = MetaData(name = "satanundischarioti"),
+      outPath = output,
+      executionContext = ExecutionContext.global
+    )
+
+    toHTML(PageSnippet(
+      Some(
+        "/Users/alex/output/satanundischarioti/satanundischarioti_1_1.md"),
+      None,
+      None)).map(p=>println(p))
+
+
+    /*
+
+    toFiles(fs.createReadStream(s"${may}/satanundischarioti.md")).map(
       sections => sections.foreach(section => println(section))
     )(ExecutionContext.global)
+
+
+
+     */
   }
 
 }
@@ -84,8 +99,7 @@ trait Chunker {
   import com.lyrx.text.processing.Main.{PageMap, Lines, Par, ParMap, SectionMap}
 
   //pandoc /Users/alex/output/satanundischarioti/satanundischarioti_1_0.md -o /Users/alex/output/satanundischarioti/satanundischarioti_1_0-frag.html
-  def toHTML(pageSnippet: PageSnippet)(
-    implicit ctx: Context) =
+  def toHTML(pageSnippet: PageSnippet)(implicit ctx:ExecutionContext) =
     pageSnippet.fileOpt.map(file => {
       val promise = concurrent.Promise[PageSnippet]
       val base = file.stripSuffix(".md")
@@ -98,7 +112,16 @@ trait Chunker {
         }
       )
       promise.future
-    }).getOrElse(Future{pageSnippet}(ctx.executionContext))
+    }).getOrElse(Future{pageSnippet})
+
+  def toHTMLs(a:Array[PageSnippet])(implicit ctx:ExecutionContext)=a.foldLeft(
+    Future{Array()}:Future[Array[PageSnippet]])((f,s)=>f.
+    flatMap(snippets =>
+      toHTML(s).
+        map(p=>
+          snippets:+p))
+  )
+
 
   def toPars(lines: Lines): ParMap = {
     var counter = 0
