@@ -1,12 +1,12 @@
 package com.lyrx.text.processing
 
-import com.lyrx.text.processing.Main.{LineMap, Lines, Par, ParMap, SectionMap}
+
 import typings.mkdirp.mkdirpMod.{Made, ^ => mkdirp}
 import typings.node
-import typings.node.NodeJS.ErrnoException
-import typings.node.fsMod.ReadStream
-import typings.node.readlineMod.Interface
-import typings.node.{fsMod => fs, readlineMod => readline}
+import node.NodeJS.ErrnoException
+import node.fsMod.ReadStream
+import node.readlineMod.Interface
+import node.{fsMod => fs, readlineMod => readline}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
@@ -74,6 +74,8 @@ case class Context(
 case class MetaData(name: String)
 
 trait Chunker {
+
+  import com.lyrx.text.processing.Main.{LineMap, Lines, Par, ParMap, SectionMap}
 
   def toPars(lines:Lines): ParMap ={
     var  counter = 0
