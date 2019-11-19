@@ -56,10 +56,15 @@ object Main extends Chunker {
 
 }
 
+case class PageSnippet(
+                      fileOpt:Option[String],
+                      hashOpt:Option[String]
+               )
+
 case class Section(level: Int,
                    index: Int,
                    metaData: MetaData,
-                   filesOpt: Option[Array[String]],
+                   pages: Array[PageSnippet],
                    titleOpt: Option[String])
 
 case class Context(
@@ -117,7 +122,9 @@ trait Chunker {
       s"${aDir}/${section.metaData.name}_${section.index}_${pageNumber}.md"
     fs.writeFile(file, page.mkString("\n"), (e) => {
       promise.success(
-        section.copy(filesOpt = section.filesOpt.map(l => l :+ file)))
+        section.copy(pages = section.pages :+ PageSnippet(
+          fileOpt = Some(file),
+          hashOpt = None)))
       ()
     })
     promise.future
@@ -183,7 +190,7 @@ trait Chunker {
             Section(level = headerLevel,
                     index = counter,
                     metaData = ctx.metaData,
-                    filesOpt = None,
+                    pages = Array(),
                     titleOpt = aTitleOpt)
           })
           .map(t => (t._1, group(t._2, 30))))
