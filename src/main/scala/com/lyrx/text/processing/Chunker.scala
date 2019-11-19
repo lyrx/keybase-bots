@@ -61,13 +61,9 @@ object Main extends Chunker {
 
 
     /*
-
     toFiles(fs.createReadStream(s"${may}/satanundischarioti.md")).map(
       sections => sections.foreach(section => println(section))
     )(ExecutionContext.global)
-
-
-
      */
   }
 
@@ -121,6 +117,13 @@ trait Chunker {
         map(p=>
           snippets:+p))
   )
+
+  def sectionToHTML(section:Section)(implicit ctx:ExecutionContext)=section.
+    pagesOpt.
+    map(a=>toHTMLs(a).map(pages=>
+      section.copy(pagesOpt = Some(pages))
+    )).getOrElse(Future{section})
+
 
 
   def toPars(lines: Lines): ParMap = {
