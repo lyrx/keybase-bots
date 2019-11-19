@@ -8,6 +8,7 @@ import node.fsMod.ReadStream
 import node.readlineMod.Interface
 import node.{fsMod => fs, readlineMod => readline}
 
+import scala.collection.immutable
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
@@ -19,7 +20,7 @@ object Main extends Chunker {
   type Par = Array[String]
   type Pars = Array[Par]
   type Lines = Par
-  type SectionMap = Map[Section, Lines]
+  type SectionMap = Map[Section, LineMap]
   type ParMap = Map[Int, Par]
   type LineMap = Map[Int, Lines]
 
@@ -60,7 +61,7 @@ object Main extends Chunker {
 case class Section(level: Int,
                     index:Int,
                    metaData: MetaData,
-                   fileOpt:Option[String],
+                   filesOpt:Option[Array[String]],
                    titleOpt:Option[String]
                   )
 
@@ -114,18 +115,59 @@ trait Chunker {
     promise.future
   }
 
+
   def toFile(section: Section,
-             array: Array[String],
+             array: Lines,
+             aDir:String,
+             pageNumber:Int
+            )(implicit ctx: Context): Future[Section] = {
+    val promise =concurrent.Promise[Section]()
+    val file:String = s"${aDir}/${section.metaData.name}_${section.index}_${pageNumber}.md"
+    fs.writeFile(file,
+      array.mkString("\n"),
+      (e)=>{
+        promise.success(section.copy(filesOpt=section.filesOpt.map(l=>l:+file)))
+        ()
+      })
+    promise.future
+  }
+
+
+
+  def pagesToFiles(section: Section,
+             lineMap: LineMap,
              aDir:String
             )(implicit ctx: Context): Future[Section] = {
     val promise =concurrent.Promise[Section]()
-    val file:String = s"${aDir}/${section.metaData.name}_${section.index}.md"
+
+
+    implicit val executionContext = ctx.executionContext
+
+
+   val r: Future[Section] =  lineMap.foldLeft(Future{
+      section
+    }:Future[Section]) (
+     (aSectionFuture:Future[Section],t:(Int,Lines))=>{
+      val counter:Int = t._1
+      val lines:Lines = t._2
+      aSectionFuture.flatMap(aSection=>
+      toFile(aSection,lines,aDir,counter))
+    })
+
+
+
+    /*
     fs.writeFile(file,
       array.mkString("\n"),
       (e)=>{
         promise.success(section.copy(fileOpt=Some(file)))
         ()
       })
+
+
+     */
+
+
     promise.future
   }
 
@@ -135,8 +177,8 @@ trait Chunker {
       val aDir = s"${ctx.outPath}/${ctx.metaData.name}"
       mkdirp (aDir,(e: ErrnoException, m: Made) => {
         implicit val executionContext = ctx.executionContext
-        val fa = aMap.map(t=>{
-          val f = toFile(t._1,t._2,aDir)
+        val fa: immutable.Iterable[Future[Section]] = aMap.map(t=>{
+          val f = pagesToFiles(t._1,t._2,aDir)
           f
         })
         val ff = Future.
@@ -152,7 +194,7 @@ trait Chunker {
       readStream: ReadStream
   )(implicit ctx: Context): Future[SectionMap] = {
 
-    val p = concurrent.Promise[Map[Section, Lines]]()
+    val p = concurrent.Promise[SectionMap]()
 
     read(readStream).map( lines => {
       var counter = 0;
@@ -172,10 +214,11 @@ trait Chunker {
         Section(level = headerLevel,
           index = counter,
           metaData=ctx.metaData,
-          fileOpt = None,
+          filesOpt = None,
           titleOpt = aTitleOpt
         )
-      }))
+      }).
+        map(t=>(t._1,group(t._2,30))))
     })(ctx.executionContext)
     p.future
   }
