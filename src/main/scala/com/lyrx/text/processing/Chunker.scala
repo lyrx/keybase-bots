@@ -1,22 +1,28 @@
 package com.lyrx.text.processing
 
-import scala.scalajs.js
-import typings.node
-import node.fsMod.ReadStream
-import node.readlineMod.Interface
-import node.{fsMod => fs, readlineMod => readline}
+import com.lyrx.text.processing.Main.{LineMap, Lines, Par, ParMap, SectionMap}
 import typings.mkdirp.mkdirpMod.{Made, ^ => mkdirp}
+import typings.node
 import typings.node.NodeJS.ErrnoException
+import typings.node.fsMod.ReadStream
+import typings.node.readlineMod.Interface
+import typings.node.{fsMod => fs, readlineMod => readline}
 
-import js.annotation.{JSExport, JSExportTopLevel}
-import scala.collection.immutable
-import scala.concurrent
 import scala.concurrent.{ExecutionContext, Future}
+import scala.scalajs.js
+import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 @JSExportTopLevel("Chunker")
 object Main extends Chunker {
 
 
   type HeaderDetection = String => Int
+  type Par = Array[String]
+  type Pars = Array[Par]
+  type Lines = Par
+  type SectionMap = Map[Section, Lines]
+  type ParMap = Map[Int, Par]
+  type LineMap = Map[Int, Lines]
+
 
   val may =
     "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources/books/KarlMay"
@@ -69,10 +75,35 @@ case class MetaData(name: String)
 
 trait Chunker {
 
-  def read(readStream: ReadStream) = {
+  def toPars(lines:Lines): ParMap ={
+    var  counter = 0
+    lines.
+      groupBy[Int]((line:String)=>{
+        if(line.trim.length == 0){
+          counter = counter + 1
+        }
+        counter
+      })
+  }
+
+  def group(lines:Lines, max:Int): LineMap ={
+    var  counter = 0
+    var lineCounter = 0
+    lines.
+      groupBy[Int]((line:String)=>{
+        lineCounter = lineCounter + 1
+        if(lineCounter > max){
+          counter = counter + 1
+          lineCounter = 0
+        }
+        counter
+      })
+  }
+
+  def read(readStream: ReadStream): Future[Lines] = {
     val interface: Interface = readline.createInterface(readStream)
     var seq: Array[String] = Array()
-    val promise = concurrent.Promise[Array[String]]()
+    val promise = concurrent.Promise[Lines]()
     interface.on("line", (s) => { seq = (seq :+ s.toString) })
     interface.on("close", (e) => {
       promise.success(seq)
@@ -84,7 +115,7 @@ trait Chunker {
   def toFile(section: Section,
              array: Array[String],
              aDir:String
-            )(implicit ctx: Context) = {
+            )(implicit ctx: Context): Future[Section] = {
     val promise =concurrent.Promise[Section]()
     val file:String = s"${aDir}/${section.metaData.name}_${section.index}.md"
     fs.writeFile(file,
@@ -96,7 +127,7 @@ trait Chunker {
     promise.future
   }
 
-  def toFiles(readStream: ReadStream)(implicit ctx: Context) = {
+  def toFiles(readStream: ReadStream)(implicit ctx: Context): Future[Array[Section]] = {
     val promise =concurrent.Promise[Future[Array[Section]]]()
     toSections(readStream).map( aMap=> {
       val aDir = s"${ctx.outPath}/${ctx.metaData.name}"
@@ -117,9 +148,9 @@ trait Chunker {
 
   def toSections(
       readStream: ReadStream
-  )(implicit ctx: Context) = {
+  )(implicit ctx: Context): Future[SectionMap] = {
 
-    val p = concurrent.Promise[Map[Section, Array[String]]]()
+    val p = concurrent.Promise[Map[Section, Lines]]()
 
     read(readStream).map( lines => {
       var counter = 0;
