@@ -1,6 +1,6 @@
 package com.lyrx.text.processing
 
-
+import com.lyrx.text.processing.Main.Page
 import typings.mkdirp.mkdirpMod.{Made, ^ => mkdirp}
 import typings.node
 import node.NodeJS.ErrnoException
@@ -15,15 +15,14 @@ import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 @JSExportTopLevel("Chunker")
 object Main extends Chunker {
 
-
   type HeaderDetection = String => Int
   type Par = Array[String]
   type Pars = Array[Par]
   type Lines = Par
-  type SectionMap = Map[Section, LineMap]
+  type SectionMap = Map[Section, Pages]
   type ParMap = Map[Int, Par]
-  type LineMap = Map[Int, Lines]
-
+  type Pages = Map[Int, Lines]
+  type Page = Array[String]
 
   val may =
     "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources/books/KarlMay"
@@ -47,23 +46,21 @@ object Main extends Chunker {
     toFiles(fs.createReadStream(s"${may}/satanundischarioti.md"))(
       Context(
         headerLevel = h,
-        metaData = MetaData(
-          name = "satanundischarioti"),
+        metaData = MetaData(name = "satanundischarioti"),
         outPath = output,
         executionContext = ExecutionContext.global
       )).map(
-      sections=>sections.foreach(section=>println(section))
+      sections => sections.foreach(section => println(section))
     )(ExecutionContext.global)
   }
 
 }
 
 case class Section(level: Int,
-                    index:Int,
+                   index: Int,
                    metaData: MetaData,
-                   filesOpt:Option[Array[String]],
-                   titleOpt:Option[String]
-                  )
+                   filesOpt: Option[Array[String]],
+                   titleOpt: Option[String])
 
 case class Context(
     headerLevel: Main.HeaderDetection,
@@ -76,31 +73,29 @@ case class MetaData(name: String)
 
 trait Chunker {
 
-  import com.lyrx.text.processing.Main.{LineMap, Lines, Par, ParMap, SectionMap}
+  import com.lyrx.text.processing.Main.{Pages, Lines, Par, ParMap, SectionMap}
 
-  def toPars(lines:Lines): ParMap ={
-    var  counter = 0
-    lines.
-      groupBy[Int]((line:String)=>{
-        if(line.trim.length == 0){
-          counter = counter + 1
-        }
-        counter
-      })
+  def toPars(lines: Lines): ParMap = {
+    var counter = 0
+    lines.groupBy[Int]((line: String) => {
+      if (line.trim.length == 0) {
+        counter = counter + 1
+      }
+      counter
+    })
   }
 
-  def group(lines:Lines, max:Int): LineMap ={
-    var  counter = 0
+  def group(lines: Lines, max: Int): Pages = {
+    var counter = 0
     var lineCounter = 0
-    lines.
-      groupBy[Int]((line:String)=>{
-        lineCounter = lineCounter + 1
-        if(lineCounter > max){
-          counter = counter + 1
-          lineCounter = 0
-        }
-        counter
-      })
+    lines.groupBy[Int]((line: String) => {
+      lineCounter = lineCounter + 1
+      if (lineCounter > max) {
+        counter = counter + 1
+        lineCounter = 0
+      }
+      counter
+    })
   }
 
   def read(readStream: ReadStream): Future[Lines] = {
@@ -115,77 +110,53 @@ trait Chunker {
     promise.future
   }
 
-
-  def toFile(section: Section,
-             array: Lines,
-             aDir:String,
-             pageNumber:Int
-            )(implicit ctx: Context): Future[Section] = {
-    val promise =concurrent.Promise[Section]()
-    val file:String = s"${aDir}/${section.metaData.name}_${section.index}_${pageNumber}.md"
-    fs.writeFile(file,
-      array.mkString("\n"),
-      (e)=>{
-        promise.success(section.copy(filesOpt=section.filesOpt.map(l=>l:+file)))
-        ()
-      })
+  def pageToFile(section: Section, page: Page, aDir: String, pageNumber: Int)(
+      implicit ctx: Context): Future[Section] = {
+    val promise = concurrent.Promise[Section]()
+    val file: String =
+      s"${aDir}/${section.metaData.name}_${section.index}_${pageNumber}.md"
+    fs.writeFile(file, page.mkString("\n"), (e) => {
+      promise.success(
+        section.copy(filesOpt = section.filesOpt.map(l => l :+ file)))
+      ()
+    })
     promise.future
   }
 
-
-
-  def pagesToFiles(section: Section,
-             lineMap: LineMap,
-             aDir:String
-            )(implicit ctx: Context): Future[Section] = {
-    val promise =concurrent.Promise[Section]()
-
+  def pagesToFiles(section: Section, pages: Pages, aDir: String)(
+      implicit ctx: Context): Future[Section] = {
+    val promise = concurrent.Promise[Section]()
 
     implicit val executionContext = ctx.executionContext
 
-
-   val r: Future[Section] =  lineMap.foldLeft(Future{
+    val r: Future[Section] = pages.foldLeft(Future {
       section
-    }:Future[Section]) (
-     (aSectionFuture:Future[Section],t:(Int,Lines))=>{
-      val counter:Int = t._1
-      val lines:Lines = t._2
-      aSectionFuture.flatMap(aSection=>
-      toFile(aSection,lines,aDir,counter))
+    }: Future[Section])(
+      (aSectionFuture: Future[Section], t: (Int, Lines)) => {
+      val counter: Int = t._1
+      val lines: Page= t._2
+      aSectionFuture.flatMap(aSection => pageToFile(aSection, lines, aDir, counter))
     })
-
-
-
-    /*
-    fs.writeFile(file,
-      array.mkString("\n"),
-      (e)=>{
-        promise.success(section.copy(fileOpt=Some(file)))
-        ()
-      })
-
-
-     */
-
-
     promise.future
   }
 
-  def toFiles(readStream: ReadStream)(implicit ctx: Context): Future[Array[Section]] = {
-    val promise =concurrent.Promise[Future[Array[Section]]]()
-    toSections(readStream).map( aMap=> {
+  def toFiles(readStream: ReadStream)(
+      implicit ctx: Context): Future[Array[Section]] = {
+    val promise = concurrent.Promise[Future[Array[Section]]]()
+    toSections(readStream).map(aMap => {
       val aDir = s"${ctx.outPath}/${ctx.metaData.name}"
-      mkdirp (aDir,(e: ErrnoException, m: Made) => {
-        implicit val executionContext = ctx.executionContext
-        val fa: immutable.Iterable[Future[Section]] = aMap.map(t=>{
-          val f = pagesToFiles(t._1,t._2,aDir)
-          f
-        })
-        val ff = Future.
-          sequence(fa).
-          map(_.toArray)
-        promise.success(ff)
-      })
+      mkdirp(
+        aDir,
+        (e: ErrnoException, m: Made) => {
+          implicit val executionContext = ctx.executionContext
+          val fa: immutable.Iterable[Future[Section]] = aMap.map(t => {
+            val f = pagesToFiles(t._1, t._2, aDir)
+            f
+          })
+          val ff = Future.sequence(fa).map(_.toArray)
+          promise.success(ff)
+        }
+      )
     })(ctx.executionContext)
     promise.future.flatten
   }
@@ -196,29 +167,28 @@ trait Chunker {
 
     val p = concurrent.Promise[SectionMap]()
 
-    read(readStream).map( lines => {
+    read(readStream).map(lines => {
       var counter = 0;
-      var aTitleOpt:Option[String]=None;
+      var aTitleOpt: Option[String] = None;
       var headerLevel = -1
-      p.success(lines.groupBy[Section]((line: String) => {
-        val aLevel = ctx.headerLevel(line)
-        if ( aLevel > 0) {
-          headerLevel = aLevel
-          counter = counter + 1
-          aTitleOpt=Some(
-            line.
-              replaceAll("#","").
-              trim
-          )
-        }
-        Section(level = headerLevel,
-          index = counter,
-          metaData=ctx.metaData,
-          filesOpt = None,
-          titleOpt = aTitleOpt
-        )
-      }).
-        map(t=>(t._1,group(t._2,30))))
+      p.success(
+        lines
+          .groupBy[Section]((line: String) => {
+            val aLevel = ctx.headerLevel(line)
+            if (aLevel > 0) {
+              headerLevel = aLevel
+              counter = counter + 1
+              aTitleOpt = Some(
+                line.replaceAll("#", "").trim
+              )
+            }
+            Section(level = headerLevel,
+                    index = counter,
+                    metaData = ctx.metaData,
+                    filesOpt = None,
+                    titleOpt = aTitleOpt)
+          })
+          .map(t => (t._1, group(t._2, 30))))
     })(ctx.executionContext)
     p.future
   }
