@@ -25,7 +25,7 @@ object Main extends Chunker {
   type PageMap = Map[Int, Lines]
   type Page = Array[String]
 
-  final val noPages=Array[PageSnippet]()
+
 
   val may =
     "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources/books/KarlMay"
@@ -67,7 +67,7 @@ case class PageSnippet(
 case class Section(level: Int,
                    index: Int,
                    metaData: MetaData,
-                   pages: Array[PageSnippet],
+                   pagesOpt: Option[Array[PageSnippet]],
                    titleOpt: Option[String])
 
 case class Context(
@@ -131,9 +131,10 @@ trait Chunker {
       s"${aDir}/${section.metaData.name}_${section.index}_${pageNumber}.md"
     fs.writeFile(file, page.mkString("\n"), (e) => {
       promise.success(
-        section.copy(pages = section.pages :+ PageSnippet(
+        section.copy(
+          pagesOpt = section.pagesOpt.map((pages:Array[PageSnippet])=>pages :+ PageSnippet(
           fileOpt = Some(file),
-          hashOpt = None)))
+          hashOpt = None))))
       ()
     })
     promise.future
@@ -203,7 +204,7 @@ trait Chunker {
             Section(level = headerLevel,
                     index = counter,
                     metaData = ctx.metaData,
-                    pages = Main.noPages,
+                    pagesOpt = None,
                     titleOpt = aTitleOpt)
           }))
           //.map(t => (t._1, group(t._2, 30))))
