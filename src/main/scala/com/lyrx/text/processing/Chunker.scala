@@ -7,6 +7,7 @@ import node.NodeJS.ErrnoException
 import node.fsMod.ReadStream
 import node.readlineMod.Interface
 import node.{fsMod => fs, readlineMod => readline}
+import typings.node.childUnderscoreProcessMod.spawn
 
 import scala.collection.immutable
 import scala.concurrent.{ExecutionContext, Future}
@@ -46,7 +47,7 @@ object Main extends Chunker {
   }
   @JSExport
   def initt(): Unit = {
-    toSections(fs.createReadStream(s"${may}/satanundischarioti.md"))(
+    toFiles(fs.createReadStream(s"${may}/satanundischarioti.md"))(
       Context(
         headerLevel = h,
         metaData = MetaData(name = "satanundischarioti"),
@@ -82,6 +83,13 @@ case class MetaData(name: String)
 trait Chunker {
 
   import com.lyrx.text.processing.Main.{PageMap, Lines, Par, ParMap, SectionMap}
+
+
+
+  //pandoc /Users/alex/output/satanundischarioti/satanundischarioti_1_0.md -o /Users/alex/output/satanundischarioti/satanundischarioti_1_0-frag.html
+  def toHTML(pageSnippet: PageSnippet): Unit ={
+    spawn("pandoc",js.Array("",""))
+  }
 
   def toPars(lines: Lines): ParMap = {
     var counter = 0
