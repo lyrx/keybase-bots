@@ -1,6 +1,6 @@
 package com.lyrx.text.processing
 
-import com.lyrx.text.processing.Main.Page
+import com.lyrx.text.processing.Main.{LinesMap, Page}
 import typings.mkdirp.mkdirpMod.{Made, ^ => mkdirp}
 import typings.node
 import node.NodeJS.ErrnoException
@@ -18,11 +18,14 @@ object Main extends Chunker {
   type HeaderDetection = String => Int
   type Par = Array[String]
   type Pars = Array[Par]
-  type Lines = Par
-  type SectionMap = Map[Section, Pages]
+  type Lines =  Array[String]
+  type SectionMap = Map[Section, PageMap]
+  type LinesMap = Map[Section,Lines]
   type ParMap = Map[Int, Par]
-  type Pages = Map[Int, Lines]
+  type PageMap = Map[Int, Lines]
   type Page = Array[String]
+
+  final val noPages=Array[PageSnippet]()
 
   val may =
     "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources/books/KarlMay"
@@ -43,7 +46,7 @@ object Main extends Chunker {
   }
   @JSExport
   def initt(): Unit = {
-    toFiles(fs.createReadStream(s"${may}/satanundischarioti.md"))(
+    toSections(fs.createReadStream(s"${may}/satanundischarioti.md"))(
       Context(
         headerLevel = h,
         metaData = MetaData(name = "satanundischarioti"),
@@ -78,7 +81,7 @@ case class MetaData(name: String)
 
 trait Chunker {
 
-  import com.lyrx.text.processing.Main.{Pages, Lines, Par, ParMap, SectionMap}
+  import com.lyrx.text.processing.Main.{PageMap, Lines, Par, ParMap, SectionMap}
 
   def toPars(lines: Lines): ParMap = {
     var counter = 0
@@ -90,7 +93,7 @@ trait Chunker {
     })
   }
 
-  def group(lines: Lines, max: Int): Pages = {
+  def group(lines: Lines, max: Int): PageMap = {
     var counter = 0
     var lineCounter = 0
     lines.groupBy[Int]((line: String) => {
@@ -102,6 +105,12 @@ trait Chunker {
       counter
     })
   }
+
+  /*
+  def withPages(linesMap: LinesMap,max:Int):SectionMap = linesMap.
+    map(t=>(t._1,group(t._2,max)))
+*/
+
 
   def read(readStream: ReadStream): Future[Lines] = {
     val interface: Interface = readline.createInterface(readStream)
@@ -130,7 +139,7 @@ trait Chunker {
     promise.future
   }
 
-  def pagesToFiles(section: Section, pages: Pages, aDir: String)(
+  def pagesToFiles(section: Section, pages: PageMap, aDir: String)(
       implicit ctx: Context): Future[Section] = {
     implicit val executionContext = ctx.executionContext
 
@@ -155,7 +164,7 @@ trait Chunker {
         (e: ErrnoException, m: Made) => {
           implicit val executionContext = ctx.executionContext
           val fa: immutable.Iterable[Future[Section]] = aMap.map(t => {
-            val f = pagesToFiles(t._1, t._2, aDir)
+            val f = pagesToFiles(t._1, group(t._2,30), aDir)
             f
           })
           val ff = Future.sequence(fa).map(_.toArray)
@@ -166,11 +175,15 @@ trait Chunker {
     promise.future.flatten
   }
 
+
+
+
   def toSections(
       readStream: ReadStream
-  )(implicit ctx: Context): Future[SectionMap] = {
+  )(implicit ctx: Context): Future[LinesMap] = {
 
-    val p = concurrent.Promise[SectionMap]()
+
+    val p = concurrent.Promise[LinesMap]()
 
     read(readStream).map(lines => {
       var counter = 0;
@@ -190,10 +203,10 @@ trait Chunker {
             Section(level = headerLevel,
                     index = counter,
                     metaData = ctx.metaData,
-                    pages = Array(),
+                    pages = Main.noPages,
                     titleOpt = aTitleOpt)
-          })
-          .map(t => (t._1, group(t._2, 30))))
+          }))
+          //.map(t => (t._1, group(t._2, 30))))
     })(ctx.executionContext)
     p.future
   }
