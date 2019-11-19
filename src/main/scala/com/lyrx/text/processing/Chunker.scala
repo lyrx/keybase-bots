@@ -125,11 +125,9 @@ trait Chunker {
 
   def pagesToFiles(section: Section, pages: Pages, aDir: String)(
       implicit ctx: Context): Future[Section] = {
-    val promise = concurrent.Promise[Section]()
-
     implicit val executionContext = ctx.executionContext
 
-    val r: Future[Section] = pages.foldLeft(Future {
+    pages.foldLeft(Future {
       section
     }: Future[Section])(
       (aSectionFuture: Future[Section], t: (Int, Lines)) => {
@@ -137,7 +135,7 @@ trait Chunker {
       val lines: Page= t._2
       aSectionFuture.flatMap(aSection => pageToFile(aSection, lines, aDir, counter))
     })
-    promise.future
+
   }
 
   def toFiles(readStream: ReadStream)(
