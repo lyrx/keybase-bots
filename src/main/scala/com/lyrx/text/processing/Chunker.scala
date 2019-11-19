@@ -19,14 +19,12 @@ object Main extends Chunker {
   type HeaderDetection = String => Int
   type Par = Array[String]
   type Pars = Array[Par]
-  type Lines =  Array[String]
+  type Lines = Array[String]
   type SectionMap = Map[Section, PageMap]
-  type LinesMap = Map[Section,Lines]
+  type LinesMap = Map[Section, Lines]
   type ParMap = Map[Int, Par]
   type PageMap = Map[Int, Lines]
   type Page = Array[String]
-
-
 
   val may =
     "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources/books/KarlMay"
@@ -61,9 +59,10 @@ object Main extends Chunker {
 }
 
 case class PageSnippet(
-                      fileOpt:Option[String],
-                      hashOpt:Option[String]
-               )
+    fileOpt: Option[String],
+    hashOpt: Option[String],
+    htmlOpt: Option[String]
+)
 
 case class Section(level: Int,
                    index: Int,
@@ -84,12 +83,22 @@ trait Chunker {
 
   import com.lyrx.text.processing.Main.{PageMap, Lines, Par, ParMap, SectionMap}
 
-
-
   //pandoc /Users/alex/output/satanundischarioti/satanundischarioti_1_0.md -o /Users/alex/output/satanundischarioti/satanundischarioti_1_0-frag.html
-  def toHTML(pageSnippet: PageSnippet): Unit ={
-    spawn("pandoc",js.Array("",""))
-  }
+  def toHTML(pageSnippet: PageSnippet)(
+    implicit ctx: Context) =
+    pageSnippet.fileOpt.map(file => {
+      val promise = concurrent.Promise[PageSnippet]
+      val base = file.stripSuffix(".md")
+      val html = s"${base}-frag.html"
+      spawn("pandoc", js.Array(file,"-o", html)).on(
+        "close",
+        (code) => {
+          promise.success(pageSnippet.copy(htmlOpt = Some(html)))
+          ()
+        }
+      )
+      promise.future
+    }).getOrElse(Future{pageSnippet}(ctx.executionContext))
 
   def toPars(lines: Lines): ParMap = {
     var counter = 0
@@ -117,8 +126,7 @@ trait Chunker {
   /*
   def withPages(linesMap: LinesMap,max:Int):SectionMap = linesMap.
     map(t=>(t._1,group(t._2,max)))
-*/
-
+   */
 
   def read(readStream: ReadStream): Future[Lines] = {
     val interface: Interface = readline.createInterface(readStream)
@@ -137,14 +145,22 @@ trait Chunker {
     val promise = concurrent.Promise[Section]()
     val file: String =
       s"${aDir}/${section.metaData.name}_${section.index}_${pageNumber}.md"
-    fs.writeFile(file, page.mkString("\n"), (e) => {
-      promise.success(
-        section.copy(
-          pagesOpt = section.pagesOpt.map((pages:Array[PageSnippet])=>pages :+ PageSnippet(
-          fileOpt = Some(file),
-          hashOpt = None))))
-      ()
-    })
+    fs.writeFile(
+      file,
+      page.mkString("\n"),
+      (e) => {
+        promise.success(
+          section.copy(
+            pagesOpt = section.pagesOpt.map(
+              (pages: Array[PageSnippet]) =>
+                pages :+ PageSnippet(
+                  fileOpt = Some(file),
+                  hashOpt = None,
+                  htmlOpt = None
+              ))))
+        ()
+      }
+    )
     promise.future
   }
 
@@ -154,11 +170,11 @@ trait Chunker {
 
     pages.foldLeft(Future {
       section
-    }: Future[Section])(
-      (aSectionFuture: Future[Section], t: (Int, Lines)) => {
+    }: Future[Section])((aSectionFuture: Future[Section], t: (Int, Lines)) => {
       val counter: Int = t._1
-      val lines: Page= t._2
-      aSectionFuture.flatMap(aSection => pageToFile(aSection, lines, aDir, counter))
+      val lines: Page = t._2
+      aSectionFuture.flatMap(aSection =>
+        pageToFile(aSection, lines, aDir, counter))
     })
 
   }
@@ -173,7 +189,7 @@ trait Chunker {
         (e: ErrnoException, m: Made) => {
           implicit val executionContext = ctx.executionContext
           val fa: immutable.Iterable[Future[Section]] = aMap.map(t => {
-            val f = pagesToFiles(t._1, group(t._2,30), aDir)
+            val f = pagesToFiles(t._1, group(t._2, 30), aDir)
             f
           })
           val ff = Future.sequence(fa).map(_.toArray)
@@ -184,13 +200,9 @@ trait Chunker {
     promise.future.flatten
   }
 
-
-
-
   def toSections(
       readStream: ReadStream
   )(implicit ctx: Context): Future[LinesMap] = {
-
 
     val p = concurrent.Promise[LinesMap]()
 
@@ -215,7 +227,7 @@ trait Chunker {
                     pagesOpt = None,
                     titleOpt = aTitleOpt)
           }))
-          //.map(t => (t._1, group(t._2, 30))))
+      //.map(t => (t._1, group(t._2, 30))))
     })(ctx.executionContext)
     p.future
   }
