@@ -13,5 +13,6 @@ class Book(
     sections.foldLeft(Future {
       Array()
     }: Future[Array[Section]])((f, s) =>
-      f.flatMap(ss => sectionToHTML(s).map(sss => ss :+ sss)))
+      f.flatMap(ss => sectionToHTML(s).map(sss => ss :+ sss))).
+      map(new Book(_))
 }

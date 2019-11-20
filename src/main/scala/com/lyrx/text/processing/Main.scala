@@ -11,7 +11,7 @@ object Main extends Chunker {
 
 
   implicit val exc = ExecutionContext.global
-  val may =
+  val mayRoot =
     "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources/books/KarlMay"
   val output = "/Users/alex/output"
   val h: HeaderDetection = (line) => {
@@ -28,11 +28,18 @@ object Main extends Chunker {
     else
       0
   }
-  val ctxs = Seq(Context(
+  val ctxs = Seq(may( "satanundischarioti",
+    mayRoot))
+
+
+  def may(aName:String,base:String) =Context(
     headerLevel = h,
-    metaData = MetaData(name = "satanundischarioti"),
-    outPath = output
-  ))
+    metaData = MetaData(name =aName),
+    outPath = output,
+    markdownSourceOpt=Some( s"${base}/${aName}.md")
+  )
+
+
 
   @JSExport
   def initt(): Unit = {
@@ -42,7 +49,10 @@ object Main extends Chunker {
 
   private def chunk(ctx: Context) = {
     toFiles(readStream = fs.createReadStream(
-      s"${may}/satanundischarioti.md"),
+      ctx.
+        markdownSourceOpt.
+        get
+    ),
       actx = ctx).
       map(
         sections => sections.foreach(section => println(section))
