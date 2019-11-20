@@ -46,11 +46,10 @@ object Main extends Chunker {
   @JSExport
   def initt(): Unit = {
     implicit val exc = ExecutionContext.global
-    implicit val ctx = Context(
+     val ctx = Context(
       headerLevel = h,
       metaData = MetaData(name = "satanundischarioti"),
-      outPath = output,
-      executionContext = ExecutionContext.global
+      outPath = output
     )
 
     toHTML(PageSnippet(
@@ -84,8 +83,7 @@ case class Section(level: Int,
 case class Context(
     headerLevel: Main.HeaderDetection,
     metaData: MetaData,
-    outPath: String,
-    executionContext: ExecutionContext
+    outPath: String
 )
 
 case class MetaData(name: String)
@@ -93,6 +91,10 @@ case class MetaData(name: String)
 trait Chunker {
 
   import com.lyrx.text.processing.Main.{PageMap, Lines, Par, ParMap, SectionMap}
+
+
+
+  //def sectionsToHTML(readStream: ReadStream)(implicit ctx:ExecutionContext)=toFiles(readStream)
 
   //pandoc /Users/alex/output/satanundischarioti/satanundischarioti_1_0.md -o /Users/alex/output/satanundischarioti/satanundischarioti_1_0-frag.html
   def toHTML(pageSnippet: PageSnippet)(implicit ctx:ExecutionContext) =
@@ -166,8 +168,8 @@ trait Chunker {
     promise.future
   }
 
-  def pageToFile(section: Section, page: Page, aDir: String, pageNumber: Int)(
-      implicit ctx: Context): Future[Section] = {
+  def pageToFile(section: Section, page: Page, aDir: String, pageNumber: Int,ctx:Context)(
+      implicit executionContext: ExecutionContext): Future[Section] = {
     val promise = concurrent.Promise[Section]()
     val file: String =
       s"${aDir}/${section.metaData.name}_${section.index}_${pageNumber}.md"
@@ -190,9 +192,13 @@ trait Chunker {
     promise.future
   }
 
-  def pagesToFiles(section: Section, pages: PageMap, aDir: String)(
-      implicit ctx: Context): Future[Section] = {
-    implicit val executionContext = ctx.executionContext
+  def pagesToFiles(section: Section,
+                   pages: PageMap,
+                   aDir: String,
+                   ctx:Context
+                  )(
+      implicit executionContext: ExecutionContext): Future[Section] = {
+
 
     pages.foldLeft(Future {
       section
@@ -200,35 +206,40 @@ trait Chunker {
       val counter: Int = t._1
       val lines: Page = t._2
       aSectionFuture.flatMap(aSection =>
-        pageToFile(aSection, lines, aDir, counter))
+        pageToFile(aSection, lines, aDir, counter,ctx))
     })
 
   }
 
-  def toFiles(readStream: ReadStream)(
-      implicit ctx: Context): Future[Array[Section]] = {
+  def toFiles(readStream: ReadStream,
+              actx:Context)(
+      implicit executionContext: ExecutionContext): Future[Array[Section]] = {
     val promise = concurrent.Promise[Future[Array[Section]]]()
-    toSections(readStream).map(aMap => {
-      val aDir = s"${ctx.outPath}/${ctx.metaData.name}"
+    toSections(readStream,actx).map(aMap => {
+      val aaDir = s"${actx.outPath}/${actx.metaData.name}"
       mkdirp(
-        aDir,
+        aaDir,
         (e: ErrnoException, m: Made) => {
-          implicit val executionContext = ctx.executionContext
+
           val fa: immutable.Iterable[Future[Section]] = aMap.map(t => {
-            val f = pagesToFiles(t._1, group(t._2, 30), aDir)
+            val f = pagesToFiles(
+              section = t._1, group(t._2, 30),
+              aDir = aaDir,
+              ctx=actx)
             f
           })
           val ff = Future.sequence(fa).map(_.toArray)
           promise.success(ff)
         }
       )
-    })(ctx.executionContext)
+    })
     promise.future.flatten
   }
 
   def toSections(
-      readStream: ReadStream
-  )(implicit ctx: Context): Future[LinesMap] = {
+      readStream: ReadStream,
+      ctx: Context
+  )(implicit executionContext: ExecutionContext): Future[LinesMap] = {
 
     val p = concurrent.Promise[LinesMap]()
 
@@ -254,7 +265,7 @@ trait Chunker {
                     titleOpt = aTitleOpt)
           }))
       //.map(t => (t._1, group(t._2, 30))))
-    })(ctx.executionContext)
+    })
     p.future
   }
 
