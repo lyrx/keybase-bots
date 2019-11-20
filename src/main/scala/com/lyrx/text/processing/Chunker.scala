@@ -1,6 +1,6 @@
 package com.lyrx.text.processing
 
-import com.lyrx.text.processing.Main.{LinesMap, Page, SectionMap}
+import Types._
 import typings.mkdirp.mkdirpMod.{Made, ^ => mkdirp}
 import typings.node
 import node.NodeJS.ErrnoException
@@ -16,15 +16,7 @@ import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 @JSExportTopLevel("Chunker")
 object Main extends Chunker {
 
-  type HeaderDetection = String => Int
-  type Par = Array[String]
-  type Pars = Array[Par]
-  type Lines = Array[String]
-  type SectionMap = Map[Section, PageMap]
-  type LinesMap = Map[Section, Lines]
-  type ParMap = Map[Int, Par]
-  type PageMap = Map[Int, Lines]
-  type Page = Array[String]
+
 
   val may =
     "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources/books/KarlMay"
@@ -79,17 +71,9 @@ case class PageSnippet(
     htmlOpt: Option[String]
 )
 
-case class Book(
-    sectionMap: SectionMap
-) extends Chunker {
-  def sections(): Array[Section] = sectionMap.keys.toArray
 
-  def toHTML()(implicit ctx: ExecutionContext) =
-    sections().foldLeft(Future {
-      Array()
-    }: Future[Array[Section]])((f, s) =>
-      f.flatMap(ss => sectionToHTML(s).map(sss => ss :+ sss)))
-}
+
+
 case class Section(level: Int,
                    index: Int,
                    metaData: MetaData,
@@ -97,7 +81,7 @@ case class Section(level: Int,
                    titleOpt: Option[String])
 
 case class Context(
-    headerLevel: Main.HeaderDetection,
+    headerLevel: HeaderDetection,
     metaData: MetaData,
     outPath: String
 )
@@ -106,7 +90,7 @@ case class MetaData(name: String)
 
 trait Chunker {
 
-  import com.lyrx.text.processing.Main.{PageMap, Lines, Par, ParMap, SectionMap}
+
 
   //def sectionsToHTML(readStream: ReadStream)(implicit ctx:ExecutionContext)=toFiles(readStream)
 
