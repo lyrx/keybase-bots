@@ -13,84 +13,8 @@ import scala.collection.immutable
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
-@JSExportTopLevel("Chunker")
-object Main extends Chunker {
-
-
-
-  val may =
-    "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources/books/KarlMay"
-  val output = "/Users/alex/output"
-  val h: HeaderDetection = (line) => {
-    val s = line.trim
-
-    if (s.startsWith("####"))
-      4
-    else if (s.startsWith("###"))
-      3
-    else if (s.startsWith("##"))
-      2
-    else if (s.startsWith("#"))
-      1
-    else
-      0
-  }
-  @JSExport
-  def initt(): Unit = {
-    implicit val exc = ExecutionContext.global
-    val ctx = Context(
-      headerLevel = h,
-      metaData = MetaData(name = "satanundischarioti"),
-      outPath = output
-    )
-
-    /*
-toHTML(PageSnippet(
-  Some(
-    "/Users/alex/output/satanundischarioti/satanundischarioti_1_1.md"),
-  None,
-  None)).map(p=>println(p))
-
-
-     */
-
-    toFiles(readStream=fs.createReadStream(
-      s"${may}/satanundischarioti.md"),
-      actx = ctx).
-      map(
-      sections => sections.foreach(section => println(section))
-    )
-
-  }
-
-}
-
-case class PageSnippet(
-    fileOpt: Option[String],
-    hashOpt: Option[String],
-    htmlOpt: Option[String]
-)
-
-
-
-
-case class Section(level: Int,
-                   index: Int,
-                   metaData: MetaData,
-                   pagesOpt: Option[Array[PageSnippet]],
-                   titleOpt: Option[String])
-
-case class Context(
-    headerLevel: HeaderDetection,
-    metaData: MetaData,
-    outPath: String
-)
-
-case class MetaData(name: String)
 
 trait Chunker {
-
-
 
   //def sectionsToHTML(readStream: ReadStream)(implicit ctx:ExecutionContext)=toFiles(readStream)
 
