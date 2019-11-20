@@ -38,7 +38,7 @@ trait Grouping {
 
   def read(readStream: ReadStream): Future[Lines] = {
     val interface: Interface = readline.createInterface(readStream)
-    var seq: Array[String] = Array()
+    var seq: Seq[String] = Seq()
     val promise = concurrent.Promise[Lines]()
     interface.on("line", (s) => { seq = (seq :+ s.toString) })
     interface.on("close", (e) => {

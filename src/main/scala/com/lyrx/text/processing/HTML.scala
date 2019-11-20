@@ -28,7 +28,7 @@ trait HTML {
       .getOrElse(Future { pageSnippet })
 
   def toHTMLs(a: Seq[PageSnippet])(implicit ctx: ExecutionContext) =
-    a.foldLeft(Future { Array() }: Future[Array[PageSnippet]])((f, s) =>
+    a.foldLeft(Future { Seq() }: Future[Seq[PageSnippet]])((f, s) =>
       f.flatMap(snippets => toHTML(s).map(p => snippets :+ p)))
 
   def sectionToHTML(section: Section)(implicit ctx: ExecutionContext) =
