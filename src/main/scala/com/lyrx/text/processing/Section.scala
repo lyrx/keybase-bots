@@ -3,5 +3,5 @@ package com.lyrx.text.processing
 case class Section(level: Int,
                    index: Int,
                    metaData: MetaData,
-                   pagesOpt: Option[Array[PageSnippet]],
+                   pages: Seq[PageSnippet],
                    titleOpt: Option[String])

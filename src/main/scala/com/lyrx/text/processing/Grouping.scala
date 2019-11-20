@@ -63,13 +63,11 @@ trait Grouping {
       (e) => {
         promise.success(
           section.copy(
-            pagesOpt = section.pagesOpt.map(
-              (pages: Array[PageSnippet]) =>
-                pages :+ PageSnippet(
+            pages = section.pages :+ PageSnippet(
                   fileOpt = Some(file),
                   hashOpt = None,
                   htmlOpt = None
-                ))))
+                )))
         ()
       }
     )
@@ -142,7 +140,7 @@ trait Grouping {
             Section(level = headerLevel,
               index = counter,
               metaData = ctx.metaData,
-              pagesOpt = None,
+              pages = Seq[PageSnippet](),
               titleOpt = aTitleOpt)
           }))
       //.map(t => (t._1, group(t._2, 30))))

@@ -4,7 +4,7 @@ import com.lyrx.text.processing.Types.HeaderDetection
 import typings.node
 import node.{fsMod => fs}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 @JSExportTopLevel("Chunker")
 object Main extends Chunker {
@@ -28,33 +28,28 @@ object Main extends Chunker {
     else
       0
   }
-  val ctxs = Seq(may( "satanundischarioti",
+  val ctxs = Seq(may("satanundischarioti",
     mayRoot))
 
-
-  def may(aName:String,base:String) =Context(
+  def may(aName: String, base: String) = Context(
     headerLevel = h,
-    metaData = MetaData(name =aName),
+    metaData = MetaData(name = aName),
     outPath = output,
-    markdownSourceOpt=Some( s"${base}/${aName}.md")
+    markdownSourceOpt = Some(s"${base}/${aName}.md")
   )
 
 
-
   @JSExport
-  def initt(): Unit = ctxs.map(chunk(_))
-
+  def initt() = Future.sequence(ctxs.map(chunk(_)))
 
 
   private def chunk(ctx: Context) = {
+
     sectionsToHTML(readStream = fs.createReadStream(
       ctx.
         markdownSourceOpt.
         get
     ),
-      context = ctx).
-      map(
-        book => {}//book.sections.foreach(section => println(section))
-      )
+      context = ctx)
   }
 }
