@@ -36,7 +36,7 @@ object Main extends Chunker {
 
   @JSExport
   def initt(): Unit = {
-    ctxs.map(chunk(_)
+    ctxs.map(chunk(_))
   }
 
 
