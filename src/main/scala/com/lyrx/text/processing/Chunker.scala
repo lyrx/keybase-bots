@@ -15,7 +15,7 @@ trait Chunker extends Grouping with HTML {
       context
     ).map(_.map(sectionToHTML(_)))
       .map(Future.sequence(_)).
-      flatten
+      flatten.map(_.toSeq.flatten)
 
 
 
