@@ -46,24 +46,29 @@ object Main extends Chunker {
   @JSExport
   def initt(): Unit = {
     implicit val exc = ExecutionContext.global
-     val ctx = Context(
+    val ctx = Context(
       headerLevel = h,
       metaData = MetaData(name = "satanundischarioti"),
       outPath = output
     )
 
-    toHTML(PageSnippet(
-      Some(
-        "/Users/alex/output/satanundischarioti/satanundischarioti_1_1.md"),
-      None,
-      None)).map(p=>println(p))
-
-
     /*
-    toFiles(fs.createReadStream(s"${may}/satanundischarioti.md")).map(
-      sections => sections.foreach(section => println(section))
-    )(ExecutionContext.global)
+toHTML(PageSnippet(
+  Some(
+    "/Users/alex/output/satanundischarioti/satanundischarioti_1_1.md"),
+  None,
+  None)).map(p=>println(p))
+
+
      */
+
+    toFiles(readStream=fs.createReadStream(
+      s"${may}/satanundischarioti.md"),
+      actx = ctx).
+      map(
+      sections => sections.foreach(section => println(section))
+    )
+
   }
 
 }
@@ -75,18 +80,15 @@ case class PageSnippet(
 )
 
 case class Book(
-               sectionMap:SectionMap
-               )extends Chunker{
-  def sections(): Array[Section] =sectionMap.keys.toArray
+    sectionMap: SectionMap
+) extends Chunker {
+  def sections(): Array[Section] = sectionMap.keys.toArray
 
-  def toHTML()(implicit ctx:ExecutionContext)=sections().
-    foldLeft(Future{
+  def toHTML()(implicit ctx: ExecutionContext) =
+    sections().foldLeft(Future {
       Array()
-    }:Future[Array[Section]])((f,s)=>f.
-      flatMap(ss=>
-        sectionToHTML(s).
-          map(sss=>ss:+sss))
-    )
+    }: Future[Array[Section]])((f, s) =>
+      f.flatMap(ss => sectionToHTML(s).map(sss => ss :+ sss)))
 }
 case class Section(level: Int,
                    index: Int,
@@ -106,43 +108,34 @@ trait Chunker {
 
   import com.lyrx.text.processing.Main.{PageMap, Lines, Par, ParMap, SectionMap}
 
-
-
   //def sectionsToHTML(readStream: ReadStream)(implicit ctx:ExecutionContext)=toFiles(readStream)
 
   //pandoc /Users/alex/output/satanundischarioti/satanundischarioti_1_0.md -o /Users/alex/output/satanundischarioti/satanundischarioti_1_0-frag.html
-  def toHTML(pageSnippet: PageSnippet)(implicit ctx:ExecutionContext) =
-    pageSnippet.fileOpt.map(file => {
-      val promise = concurrent.Promise[PageSnippet]
-      val base = file.stripSuffix(".md")
-      val html = s"${base}-frag.html"
-      spawn("pandoc", js.Array(file,"-o", html)).on(
-        "close",
-        (code) => {
-          promise.success(pageSnippet.copy(htmlOpt = Some(html)))
-          ()
-        }
-      )
-      promise.future
-    }).getOrElse(Future{pageSnippet})
+  def toHTML(pageSnippet: PageSnippet)(implicit ctx: ExecutionContext) =
+    pageSnippet.fileOpt
+      .map(file => {
+        val promise = concurrent.Promise[PageSnippet]
+        val base = file.stripSuffix(".md")
+        val html = s"${base}-frag.html"
+        spawn("pandoc", js.Array(file, "-o", html)).on(
+          "close",
+          (code) => {
+            promise.success(pageSnippet.copy(htmlOpt = Some(html)))
+            ()
+          }
+        )
+        promise.future
+      })
+      .getOrElse(Future { pageSnippet })
 
-  def toHTMLs(a:Array[PageSnippet])(implicit ctx:ExecutionContext)=a.foldLeft(
-    Future{Array()}:Future[Array[PageSnippet]])((f,s)=>f.
-    flatMap(snippets =>
-      toHTML(s).
-        map(p=>
-          snippets:+p))
-  )
+  def toHTMLs(a: Array[PageSnippet])(implicit ctx: ExecutionContext) =
+    a.foldLeft(Future { Array() }: Future[Array[PageSnippet]])((f, s) =>
+      f.flatMap(snippets => toHTML(s).map(p => snippets :+ p)))
 
-  def sectionToHTML(section:Section)(implicit ctx:ExecutionContext)=section.
-    pagesOpt.
-    map(a=>toHTMLs(a).map(pages=>
-      section.copy(pagesOpt = Some(pages))
-    )).getOrElse(Future{section})
-
-
-
-
+  def sectionToHTML(section: Section)(implicit ctx: ExecutionContext) =
+    section.pagesOpt
+      .map(a => toHTMLs(a).map(pages => section.copy(pagesOpt = Some(pages))))
+      .getOrElse(Future { section })
 
   def toPars(lines: Lines): ParMap = {
     var counter = 0
@@ -184,7 +177,11 @@ trait Chunker {
     promise.future
   }
 
-  def pageToFile(section: Section, page: Page, aDir: String, pageNumber: Int,ctx:Context)(
+  def pageToFile(section: Section,
+                 page: Page,
+                 aDir: String,
+                 pageNumber: Int,
+                 ctx: Context)(
       implicit executionContext: ExecutionContext): Future[Section] = {
     val promise = concurrent.Promise[Section]()
     val file: String =
@@ -211,10 +208,8 @@ trait Chunker {
   def pagesToFiles(section: Section,
                    pages: PageMap,
                    aDir: String,
-                   ctx:Context
-                  )(
+                   ctx: Context)(
       implicit executionContext: ExecutionContext): Future[Section] = {
-
 
     pages.foldLeft(Future {
       section
@@ -222,26 +217,25 @@ trait Chunker {
       val counter: Int = t._1
       val lines: Page = t._2
       aSectionFuture.flatMap(aSection =>
-        pageToFile(aSection, lines, aDir, counter,ctx))
+        pageToFile(aSection, lines, aDir, counter, ctx))
     })
 
   }
 
-  def toFiles(readStream: ReadStream,
-              actx:Context)(
+  def toFiles(readStream: ReadStream, actx: Context)(
       implicit executionContext: ExecutionContext): Future[Array[Section]] = {
     val promise = concurrent.Promise[Future[Array[Section]]]()
-    toSections(readStream,actx).map(aMap => {
+    toSections(readStream, actx).map(aMap => {
       val aaDir = s"${actx.outPath}/${actx.metaData.name}"
       mkdirp(
         aaDir,
         (e: ErrnoException, m: Made) => {
 
           val fa: immutable.Iterable[Future[Section]] = aMap.map(t => {
-            val f = pagesToFiles(
-              section = t._1, group(t._2, 30),
-              aDir = aaDir,
-              ctx=actx)
+            val f = pagesToFiles(section = t._1,
+                                 group(t._2, 30),
+                                 aDir = aaDir,
+                                 ctx = actx)
             f
           })
           val ff = Future.sequence(fa).map(_.toArray)
