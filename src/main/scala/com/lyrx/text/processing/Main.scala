@@ -42,20 +42,19 @@ object Main extends Chunker {
 
 
   @JSExport
-  def initt(): Unit = {
-    ctxs.map(chunk(_))
-  }
+  def initt(): Unit = ctxs.map(chunk(_))
+
 
 
   private def chunk(ctx: Context) = {
-    toFiles(readStream = fs.createReadStream(
+    sectionsToHTML(readStream = fs.createReadStream(
       ctx.
         markdownSourceOpt.
         get
     ),
-      actx = ctx).
+      context = ctx).
       map(
-        sections => sections.foreach(section => println(section))
+        book => {}//book.sections.foreach(section => println(section))
       )
   }
 }

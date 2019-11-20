@@ -5,7 +5,7 @@ import Types._
 import scala.concurrent.{ExecutionContext, Future}
 
 class Book(
-            sections:  Array[Section]
+           val sections:  Array[Section]
           ) extends Chunker {
 
 

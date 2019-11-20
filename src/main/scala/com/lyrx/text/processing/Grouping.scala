@@ -94,8 +94,8 @@ trait Grouping {
   }
 
   def toFiles(readStream: ReadStream, actx: Context)(
-    implicit executionContext: ExecutionContext): Future[Array[Section]] = {
-    val promise = concurrent.Promise[Future[Array[Section]]]()
+    implicit executionContext: ExecutionContext) = {
+    val promise = concurrent.Promise[Future[Iterable[Section]]]()
     toSections(readStream, actx).map(aMap => {
       val aaDir = s"${actx.outPath}/${actx.metaData.name}"
       mkdirp(
@@ -109,7 +109,7 @@ trait Grouping {
               ctx = actx)
             f
           })
-          val ff = Future.sequence(fa).map(_.toArray)
+          val ff = Future.sequence(fa)
           promise.success(ff)
         }
       )
