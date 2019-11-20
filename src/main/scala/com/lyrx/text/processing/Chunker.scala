@@ -1,6 +1,6 @@
 package com.lyrx.text.processing
 
-import com.lyrx.text.processing.Main.{LinesMap, Page}
+import com.lyrx.text.processing.Main.{LinesMap, Page, SectionMap}
 import typings.mkdirp.mkdirpMod.{Made, ^ => mkdirp}
 import typings.node
 import node.NodeJS.ErrnoException
@@ -75,6 +75,20 @@ case class PageSnippet(
     htmlOpt: Option[String]
 )
 
+case class Book(
+               sectionMap:SectionMap
+               )extends Chunker{
+  def sections(): Array[Section] =sectionMap.keys.toArray
+
+  def toHTML()(implicit ctx:ExecutionContext)=sections().
+    foldLeft(Future{
+      Array()
+    }:Future[Array[Section]])((f,s)=>f.
+      flatMap(ss=>
+        sectionToHTML(s).
+          map(sss=>ss:+sss))
+    )
+}
 case class Section(level: Int,
                    index: Int,
                    metaData: MetaData,
@@ -123,6 +137,8 @@ trait Chunker {
     map(a=>toHTMLs(a).map(pages=>
       section.copy(pagesOpt = Some(pages))
     )).getOrElse(Future{section})
+
+
 
 
 
