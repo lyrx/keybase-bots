@@ -28,19 +28,17 @@ object Main extends Chunker {
     else
       0
   }
-
+  val ctxs = Seq(Context(
+    headerLevel = h,
+    metaData = MetaData(name = "satanundischarioti"),
+    outPath = output
+  ))
 
   @JSExport
   def initt(): Unit = {
-    val ctxs = Seq(Context(
-      headerLevel = h,
-      metaData = MetaData(name = "satanundischarioti"),
-      outPath = output
-    ))
-
-    ctxs.map(chunk(_))
-
+    ctxs.map(chunk(_)
   }
+
 
   private def chunk(ctx: Context) = {
     toFiles(readStream = fs.createReadStream(
