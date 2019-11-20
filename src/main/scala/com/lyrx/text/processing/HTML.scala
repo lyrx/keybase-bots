@@ -7,7 +7,7 @@ import scala.scalajs.js
 
 trait HTML {
 
-  //def sectionsToHTML(readStream: ReadStream)(implicit ctx:ExecutionContext)=toFiles(readStream)
+
 
   //pandoc /Users/alex/output/satanundischarioti/satanundischarioti_1_0.md -o /Users/alex/output/satanundischarioti/satanundischarioti_1_0-frag.html
   def toHTML(pageSnippet: PageSnippet)(implicit ctx: ExecutionContext) =

@@ -5,12 +5,12 @@ import Types._
 import scala.concurrent.{ExecutionContext, Future}
 
 class Book(
-            sectionMap: SectionMap
+            sections:  Array[Section]
           ) extends Chunker {
-  def sections(): Array[Section] = sectionMap.keys.toArray
+
 
   def toHTML()(implicit ctx: ExecutionContext) =
-    sections().foldLeft(Future {
+    sections.foldLeft(Future {
       Array()
     }: Future[Array[Section]])((f, s) =>
       f.flatMap(ss => sectionToHTML(s).map(sss => ss :+ sss)))
