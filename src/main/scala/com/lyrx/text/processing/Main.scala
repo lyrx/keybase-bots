@@ -9,7 +9,6 @@ import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 @JSExportTopLevel("Chunker")
 object Main extends Chunker {
 
-
   implicit val exc = ExecutionContext.global
   val mayRoot =
     "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources/books/KarlMay"
@@ -28,28 +27,19 @@ object Main extends Chunker {
     else
       0
   }
-  val ctxs = Seq(may("satanundischarioti",
-    mayRoot))
+  val ctxs = Seq(may("satanundischarioti", mayRoot))
 
-  def may(aName: String, base: String) = Context(
-    headerLevel = h,
-    metaData = MetaData(name = aName),
-    outPath = output,
-    markdownSourceOpt = Some(s"${base}/${aName}.md")
-  )
-
-
+  def may(aName: String, base: String) = Book.from(aName, base)
   @JSExport
-  def initt() = Future.sequence(ctxs.map(chunk(_)))
+  def initt() = ctxs.map(chunk(_))
 
+  private def chunk(book: Book) =
+    book
+      .withMarkdownSections()
+      .flatMap(
+        b =>
+          b.writeMarkdownChunks(30)
+            .map(b => b.sections.map(section => println(section)))
+      )
 
-  private def chunk(ctx: Context) = {
-
-    sectionsToHTML(readStream = fs.createReadStream(
-      ctx.
-        markdownSourceOpt.
-        get
-    ),
-      context = ctx)
-  }
 }
