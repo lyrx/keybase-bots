@@ -35,7 +35,6 @@ trait Grouping {
     })
   }
 
-
   def read(readStream: ReadStream): Future[Lines] = {
     val interface: Interface = readline.createInterface(readStream)
     var seq: Seq[String] = Seq()
@@ -53,7 +52,7 @@ trait Grouping {
                  aDir: String,
                  pageNumber: Int,
                  ctx: Context)(
-                  implicit executionContext: ExecutionContext): Future[Section] = {
+      implicit executionContext: ExecutionContext): Future[Section] = {
     val promise = concurrent.Promise[Section]()
     val file: String =
       s"${aDir}/${section.metaData.name}_${section.index}_${pageNumber}.md"
@@ -64,10 +63,10 @@ trait Grouping {
         promise.success(
           section.copy(
             pages = section.pages :+ PageSnippet(
-                  fileOpt = Some(file),
-                  hashOpt = None,
-                  htmlOpt = None
-                )))
+              fileOpt = Some(file),
+              hashOpt = None,
+              htmlOpt = None
+            )))
         ()
       }
     )
@@ -78,7 +77,7 @@ trait Grouping {
                    pages: PageMap,
                    aDir: String,
                    ctx: Context)(
-                    implicit executionContext: ExecutionContext): Future[Section] = {
+      implicit executionContext: ExecutionContext): Future[Section] = {
 
     pages.foldLeft(Future {
       section
@@ -92,7 +91,7 @@ trait Grouping {
   }
 
   def toFiles(readStream: ReadStream, actx: Context)(
-    implicit executionContext: ExecutionContext) = {
+      implicit executionContext: ExecutionContext) = {
     val promise = concurrent.Promise[Future[Iterable[Section]]]()
     toSections(readStream, actx).map(aMap => {
       val aaDir = s"${actx.outPath}/${actx.metaData.name}"
@@ -102,9 +101,9 @@ trait Grouping {
 
           val fa: immutable.Iterable[Future[Section]] = aMap.map(t => {
             val f = pagesToFiles(section = t._1,
-              group(t._2, 30),
-              aDir = aaDir,
-              ctx = actx)
+                                 group(t._2, 30),
+                                 aDir = aaDir,
+                                 ctx = actx)
             f
           })
           val ff = Future.sequence(fa)
@@ -115,10 +114,27 @@ trait Grouping {
     promise.future.flatten
   }
 
+  def toFiles(aMap: LinesMap, aaDir: String, actx: Context, max: Int)(
+      implicit executionContext: ExecutionContext) =
+      concurrent.Promise[Future[Iterable[Section]]]()
+      .success(Future.sequence(aMap.map(t => {
+        val f = pagesToFiles(section = t._1,
+                             group(t._2, max),
+                             aDir = aaDir,
+                             ctx = actx)
+        f
+      })))
+      .future
+      .flatten
+
+
+
+
+
   def toSections(
-                  readStream: ReadStream,
-                  ctx: Context
-                )(implicit executionContext: ExecutionContext): Future[LinesMap] = {
+      readStream: ReadStream,
+      ctx: Context
+  )(implicit executionContext: ExecutionContext): Future[LinesMap] = {
 
     val p = concurrent.Promise[LinesMap]()
 
@@ -138,10 +154,10 @@ trait Grouping {
               )
             }
             Section(level = headerLevel,
-              index = counter,
-              metaData = ctx.metaData,
-              pages = Seq[PageSnippet](),
-              titleOpt = aTitleOpt)
+                    index = counter,
+                    metaData = ctx.metaData,
+                    pages = Seq[PageSnippet](),
+                    titleOpt = aTitleOpt)
           }))
       //.map(t => (t._1, group(t._2, 30))))
     })
