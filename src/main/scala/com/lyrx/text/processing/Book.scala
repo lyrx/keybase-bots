@@ -23,7 +23,7 @@ class Book(
     val linesMap:LinesMap = immutable.HashMap()
 ) extends Chunker {
 
-  def withSections()(implicit executionContext: ExecutionContext) =
+  def withMarkdownSections()(implicit executionContext: ExecutionContext) =
     context.markdownSourceOpt.map(s => {
       toSections(fs.createReadStream(s),context).
         map(newLinesMap=>new Book(
@@ -34,7 +34,7 @@ class Book(
 
 
 
-  def writeChunks(max:Int)(implicit executionContext: ExecutionContext)=
+  def writeMarkdownChunks(max:Int)(implicit executionContext: ExecutionContext)=
     toFiles(
     linesMap,
     context,
@@ -46,7 +46,7 @@ class Book(
       ))
 
 
-  def toHTML()(
+  def writeHTMLChunks()(
     implicit ctx: ExecutionContext) =
     Future.sequence(sections.map(section=>{
       sectionToHTML(section).map(
@@ -60,22 +60,5 @@ class Book(
       ))
 
 
-
-     // map(_.flatten).
-      //map(snippets => snippets)
-
-
-  /*
-    toFiles(
-      readStream,
-      context
-    ).map(_.map(sectionToHTML(_)))
-      .map(Future.sequence(_)).
-      flatten.map(_.toSeq.flatten)
-
-
-
-
-   */
 
 }
