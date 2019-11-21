@@ -46,7 +46,36 @@ class Book(
       ))
 
 
+  def toHTML()(
+    implicit ctx: ExecutionContext) =
+    Future.sequence(sections.map(section=>{
+      sectionToHTML(section).map(
+        newPages=>section.copy(pages=newPages)
+      )
+    })).
+      map(newSections => new Book(
+        context  = Book.this.context,
+        sections = newSections,
+        linesMap = Book.this.linesMap
+      ))
 
 
+
+     // map(_.flatten).
+      //map(snippets => snippets)
+
+
+  /*
+    toFiles(
+      readStream,
+      context
+    ).map(_.map(sectionToHTML(_)))
+      .map(Future.sequence(_)).
+      flatten.map(_.toSeq.flatten)
+
+
+
+
+   */
 
 }
