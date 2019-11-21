@@ -114,22 +114,27 @@ trait Grouping {
     promise.future.flatten
   }
 
-  def toFiles(aMap: LinesMap,  actx: Context, max: Int)(
-      implicit executionContext: ExecutionContext) =
-      concurrent.Promise[Future[Iterable[Section]]]()
-      .success(Future.sequence(aMap.map(t => {
-        val f = pagesToFiles(section = t._1,
-                             group(t._2, max),
-                             aDir = actx.outPath,
-                             ctx = actx)
-        f
-      })))
-      .future
-      .flatten
+  def toFiles(aMap: LinesMap, actx: Context, max: Int)(
+      implicit executionContext: ExecutionContext) = {
+    val promise = concurrent.Promise[Future[Iterable[Section]]]()
+    mkdirp(
+      actx.outPath,
+      (e: ErrnoException, m: Made) => {
+        promise
+          .success(Future.sequence(aMap.map(t => {
+            val f = pagesToFiles(section = t._1,
+                                 group(t._2, max),
+                                 aDir = actx.outPath,
+                                 ctx = actx)
+            f
+          })))
+          .future
+          .flatten
+      }
+    )
+    promise.future.flatten
 
-
-
-
+  }
 
   def toSections(
       readStream: ReadStream,
@@ -142,24 +147,24 @@ trait Grouping {
       var counter = 0;
       var aTitleOpt: Option[String] = None;
       var headerLevel = -1
-      p.success(
-        lines
-          .groupBy[Section]((line: String) => {
-            val aLevel = ctx.headerLevel(line)
-            if (aLevel > 0) {
-              headerLevel = aLevel
-              counter = counter + 1
-              aTitleOpt = Some(
-                line.replaceAll("#", "").trim
-              )
-            }
-            Section(level = headerLevel,
-                    index = counter,
-                    metaData = ctx.metaData,
-                    pages = Seq[PageSnippet](),
-                    titleOpt = aTitleOpt)
-          }))
-      //.map(t => (t._1, group(t._2, 30))))
+
+      val grouped = lines
+        .groupBy[Section]((line: String) => {
+          val aLevel = ctx.headerLevel(line)
+          if (aLevel > 0) {
+            headerLevel = aLevel
+            counter = counter + 1
+            aTitleOpt = Some(
+              line.replaceAll("#", "").trim
+            )
+          }
+          Section(level = headerLevel,
+                  index = counter,
+                  metaData = ctx.metaData,
+                  pages = Seq[PageSnippet](),
+                  titleOpt = aTitleOpt)
+        })
+      p.success(grouped)
     })
     p.future
   }

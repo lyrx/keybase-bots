@@ -12,7 +12,7 @@ object Book {
   def from(aName: String, baseDir: String) = new Book(
     context = Context(headerLevel = Main.h,
                       metaData = MetaData(name = aName),
-                      outPath = Main.output,
+                      outPath = s"${Main.output}/${aName}",
                       markdownSourceOpt = Some(s"${baseDir}/${aName}.md")),
     sections = Seq()
   )
@@ -28,8 +28,8 @@ class Book(
       toSections(fs.createReadStream(s),context).
         map(newLinesMap=>new Book(
           context = this.context,
-          sections = this.sections,
-          linesMap = this.linesMap))
+          sections = newLinesMap.keys,
+          linesMap = newLinesMap))
     }).getOrElse(Future{this})
 
 

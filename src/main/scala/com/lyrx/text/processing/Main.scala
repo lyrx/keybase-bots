@@ -37,9 +37,12 @@ object Main extends Chunker {
     book
       .withMarkdownSections()
       .flatMap(
-        b =>
+        b =>{
+          //b.sections.map(section => println(section))
           b.writeMarkdownChunks(30)
-            .map(b => b.sections.map(section => println(section)))
+          .map(b2 => b2.sections.map(section => println(section)))
+        }
+
       )
 
 }
