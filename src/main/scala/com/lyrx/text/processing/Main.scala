@@ -40,7 +40,7 @@ object Main extends Chunker {
         b =>{
           //b.sections.map(section => println(section))
           b.writeMarkdownChunks(30)
-          .map(b2 => b2.sections.map(section => println(section)))
+          .map(b2 => b2.writeHTMLChunks())
         }
 
       )
