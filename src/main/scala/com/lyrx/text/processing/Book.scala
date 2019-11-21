@@ -34,6 +34,19 @@ class Book(
 
 
 
+  def writeChunks(max:Int)(implicit executionContext: ExecutionContext)=
+    toFiles(
+    linesMap,
+    context,
+    30).
+      map(newSections => new Book(
+        context = this.context,
+        sections = newSections,
+        linesMap = this.linesMap
+      ))
+
+
+
 
 
 }

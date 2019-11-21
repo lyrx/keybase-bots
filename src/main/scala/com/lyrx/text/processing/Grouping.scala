@@ -114,13 +114,13 @@ trait Grouping {
     promise.future.flatten
   }
 
-  def toFiles(aMap: LinesMap, aaDir: String, actx: Context, max: Int)(
+  def toFiles(aMap: LinesMap,  actx: Context, max: Int)(
       implicit executionContext: ExecutionContext) =
       concurrent.Promise[Future[Iterable[Section]]]()
       .success(Future.sequence(aMap.map(t => {
         val f = pagesToFiles(section = t._1,
                              group(t._2, max),
-                             aDir = aaDir,
+                             aDir = actx.outPath,
                              ctx = actx)
         f
       })))
