@@ -11,7 +11,7 @@ trait HTML {
 
   //pandoc /Users/alex/output/satanundischarioti/satanundischarioti_1_0.md -o /Users/alex/output/satanundischarioti/satanundischarioti_1_0-frag.html
   def toHTML(pageSnippet: PageSnippet)(implicit ctx: ExecutionContext) =
-    pageSnippet.fileOpt
+    pageSnippet.markdownFileOpt
       .map(file => {
         val promise = concurrent.Promise[PageSnippet]
         val base = file.stripSuffix(".md")

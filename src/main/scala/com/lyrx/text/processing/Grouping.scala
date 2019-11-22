@@ -63,7 +63,7 @@ trait Grouping {
         promise.success(
           section.copy(
             pages = section.pages :+ PageSnippet(
-              fileOpt = Some(file),
+              markdownFileOpt = Some(file),
               hashOpt = None,
               htmlOpt = None
             )))
@@ -90,41 +90,19 @@ trait Grouping {
 
   }
 
-  def toFiles(readStream: ReadStream, actx: Context)(
-      implicit executionContext: ExecutionContext) = {
-    val promise = concurrent.Promise[Future[Iterable[Section]]]()
-    toSections(readStream, actx).map(aMap => {
-      val aaDir = s"${actx.outPath}/${actx.metaData.name}"
-      mkdirp(
-        aaDir,
-        (e: ErrnoException, m: Made) => {
-
-          val fa: immutable.Iterable[Future[Section]] = aMap.map(t => {
-            val f = pagesToFiles(section = t._1,
-                                 group(t._2, 30),
-                                 aDir = aaDir,
-                                 ctx = actx)
-            f
-          })
-          val ff = Future.sequence(fa)
-          promise.success(ff)
-        }
-      )
-    })
-    promise.future.flatten
-  }
 
   def markDownToFiles(aMap: LinesMap, actx: Context, max: Int)(
       implicit executionContext: ExecutionContext) = {
     val promise = concurrent.Promise[Future[Iterable[Section]]]()
+    val markdownOutputDir = s"${actx}/markdown"
     mkdirp(
-      actx.outPath,
+      markdownOutputDir,
       (e: ErrnoException, m: Made) => {
         promise
           .success(Future.sequence(aMap.map(t => {
             val f = pagesToFiles(section = t._1,
                                  group(t._2, max),
-                                 aDir = actx.outPath,
+                                 aDir = markdownOutputDir,
                                  ctx = actx)
             f
           })))
