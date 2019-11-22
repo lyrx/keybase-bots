@@ -32,7 +32,7 @@ trait HTML {
                a: Seq[PageSnippet],
                context:Context)(
     implicit ctx: ExecutionContext): Future[Seq[PageSnippet]] = {
-    val htmlOutputDir = s"${context.outPath}/html"
+    val htmlOutputDir = s"${context.baseOutputDir}/html/${context.metaData.name}"
     val promise = Promise[Future[Seq[PageSnippet]]]()
     mkdirp(
       htmlOutputDir,

@@ -94,7 +94,7 @@ trait Grouping {
   def markDownToFiles(aMap: LinesMap, actx: Context, max: Int)(
       implicit executionContext: ExecutionContext) = {
     val promise = concurrent.Promise[Future[Iterable[Section]]]()
-    val markdownOutputDir = s"${actx.outPath}/markdown"
+    val markdownOutputDir = s"${actx.baseOutputDir}/markdown/${actx.metaData.name}"
     mkdirp(
       markdownOutputDir,
       (e: ErrnoException, m: Made) => {

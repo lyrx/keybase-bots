@@ -12,7 +12,7 @@ object Book {
   def from(aName: String, baseDir: String) = new Book(
     context = Context(headerLevel = Main.h,
                       metaData = MetaData(name = aName),
-                      outPath = s"${Main.output}/${aName}",
+                      baseOutputDir = s"${Main.output}",
                       markdownSourceOpt = Some(s"${baseDir}/${aName}.md")),
     sections = Seq()
   )

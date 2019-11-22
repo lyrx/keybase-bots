@@ -5,6 +5,6 @@ import com.lyrx.text.processing.Types.HeaderDetection
 case class Context(
     headerLevel: HeaderDetection,
     metaData: MetaData,
-    outPath: String,
+    baseOutputDir: String,
     markdownSourceOpt:Option[String]
 )
