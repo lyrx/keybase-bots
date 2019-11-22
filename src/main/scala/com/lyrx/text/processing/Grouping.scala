@@ -1,12 +1,10 @@
 package com.lyrx.text.processing
 
 import com.lyrx.text.processing.Types.{Lines, LinesMap, Page, PageMap, ParMap}
-import typings.mkdirp.mkdirpMod.Made
 import typings.node.NodeJS.ErrnoException
 import typings.node.fsMod.ReadStream
 import typings.node.readlineMod.Interface
 import typings.mkdirp.mkdirpMod.{Made, ^ => mkdirp}
-import scala.collection.immutable
 import scala.concurrent.{ExecutionContext, Future}
 import typings.node
 import node.{fsMod => fs, readlineMod => readline}
@@ -54,8 +52,9 @@ trait Grouping {
                  ctx: Context)(
       implicit executionContext: ExecutionContext): Future[Section] = {
     val promise = concurrent.Promise[Section]()
+    val newName = s"${section.metaData.name}_${section.index}_${pageNumber}"
     val file: String =
-      s"${aDir}/${section.metaData.name}_${section.index}_${pageNumber}.md"
+      s"${aDir}/${newName}.md"
     fs.writeFile(
       file,
       page.mkString("\n"),
@@ -65,7 +64,8 @@ trait Grouping {
             pages = section.pages :+ PageSnippet(
               markdownFileOpt = Some(file),
               hashOpt = None,
-              htmlOpt = None
+              htmlOpt = None,
+              name = newName
             )))
         ()
       }

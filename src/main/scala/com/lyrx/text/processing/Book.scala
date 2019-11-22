@@ -49,7 +49,7 @@ class Book(
   def writeHTMLChunks()(
     implicit ctx: ExecutionContext) =
     Future.sequence(sections.map(section=>{
-      sectionToHTML(section).map(
+      sectionToHTML(section,this.context).map(
         newPages=>section.copy(pages=newPages)
       )
     })).
