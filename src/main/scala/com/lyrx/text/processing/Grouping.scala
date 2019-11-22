@@ -114,7 +114,7 @@ trait Grouping {
     promise.future.flatten
   }
 
-  def toFiles(aMap: LinesMap, actx: Context, max: Int)(
+  def markDownToFiles(aMap: LinesMap, actx: Context, max: Int)(
       implicit executionContext: ExecutionContext) = {
     val promise = concurrent.Promise[Future[Iterable[Section]]]()
     mkdirp(

@@ -35,7 +35,7 @@ class Book(
 
 
   def writeMarkdownChunks(max:Int)(implicit executionContext: ExecutionContext)=
-    toFiles(
+    markDownToFiles(
     linesMap,
     context,
     30).
