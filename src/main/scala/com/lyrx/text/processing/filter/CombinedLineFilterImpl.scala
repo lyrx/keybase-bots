@@ -21,6 +21,16 @@ object  CombinedLineFilterImpl{
     new LineNumberFilterImpl(from,to).filterLines(lines))
 
 
+  def filterLines(
+                  lines:Lines,
+                  from:Int,
+                  to:Int)(implicit
+                          executionContext: ExecutionContext
+                )=
+    new LineNumberFilterImpl(from,to).filterLines(lines)
+
+
+
 
 
 
