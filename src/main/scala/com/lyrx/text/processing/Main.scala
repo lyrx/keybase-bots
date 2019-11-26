@@ -28,6 +28,7 @@ object Main extends Chunker {
       0
   }
   val ctxs = Seq(
+    /*
     "satanundischarioti",
     "satanundischariotii",
      "satanundischariotiii",
@@ -35,6 +36,26 @@ object Main extends Chunker {
     "winnetouii",
     "winnetouiii",
     "winnetouiv",
+
+     */
+
+    "imlandedesmahdii",
+    "imlandedesmahdiii",
+    "imlandedesmahdiiii",
+    "imreichdessilbernenlweniii",
+    "imreichdessilbernenlweniv",
+    "dermirvondschinnistani",
+    "dermirvondschinnistanii",
+    "durchdaslandderskipetaren",
+    "durchdiewste",
+    "durchswildekurdistan",
+    "undfriedeauferden",
+    "vonbagdadnachstambul",
+    "weihnacht",
+    "derschut"
+
+
+
   ).map(may(_))
 
   def may(aName: String) = Book.from(aName, mayRoot)
@@ -45,12 +66,12 @@ object Main extends Chunker {
     book
       .withMarkdownSections()
       .flatMap(
-        b =>{
+        b => {
           //b.sections.map(section => println(section))
           b.writeMarkdownChunks(30)
-          .map(b2 => b2.writeHTMLChunks())
+            .map(b2 => b2.writeHTMLChunks().map(b3=>
+            println(s"Processed ${b3.context.metaData.name}")))
         }
-
       )
 
 }
