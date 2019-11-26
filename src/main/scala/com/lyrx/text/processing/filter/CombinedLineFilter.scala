@@ -18,7 +18,11 @@ trait CombinedLineFilter  extends MarkerFilter with LineNumberFilter {
       CombinedLineFilterImpl(filters :+ filter)
 
   def :+(from:Int,to:Int): CombinedLineFilter = new
-      CombinedLineFilterImpl(filters :+ filterLineNumbers((from,to)) _ )
+      CombinedLineFilterImpl(filters :+ filterLineNumbers(from,to) _ )
+  def :+(marker:String): CombinedLineFilter = new
+      CombinedLineFilterImpl(filters :+ filterMarks(marker) _ )
+
+
 
 }
 
