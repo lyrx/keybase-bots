@@ -8,6 +8,20 @@ import node.{fsMod => fs, readlineMod => readline}
 
 trait LinesFromFile {
 
+  def writeLines(file: String, lines: Lines) = {
+    val promise = concurrent.Promise[String]()
+
+    fs.writeFile(
+      file,
+      lines.mkString("\n"),
+      (e) => {
+        promise.success(file)
+        ()
+      }
+    )
+    promise.future
+  }
+
   def fromFile(file: String) = lines(fs.createReadStream(file))
 
   def lines(readStream: fs.ReadStream): Future[Lines] = {
