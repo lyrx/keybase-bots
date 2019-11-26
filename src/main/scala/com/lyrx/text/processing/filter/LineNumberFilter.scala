@@ -1,13 +1,12 @@
 package com.lyrx.text.processing.filter
 
-trait LineNumberFilter extends LineFilter {
+trait LineNumberFilter  {
 
-   val from:Int
-  val to:Int
 
-    override def filterLines(in: Seq[String]):Seq[String] =in.zipWithIndex
-      .dropWhile( _._2 < from)
-      .drop(to-from)
+
+    def filterLineNumbers(p:(Int,Int))(in: Seq[String]):Seq[String] =in.zipWithIndex
+      .dropWhile( _._2 < p._1)
+      .drop(p._2 - p._2)
       .map(_._1)
 
 

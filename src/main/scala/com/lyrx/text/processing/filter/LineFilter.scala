@@ -1,7 +1,7 @@
 package com.lyrx.text.processing.filter
 
-trait LineFilter {
+trait LineFilter[T] {
 
-  def filterLines(in: Seq[String]): Seq[String]
+  def filterLines(params:T)(in: Seq[String]): Seq[String]
 
 }
