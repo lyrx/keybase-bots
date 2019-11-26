@@ -90,27 +90,27 @@ trait Grouping {
 
   }
 
-
   def markDownToFiles(aMap: LinesMap, actx: Context, max: Int)(
       implicit executionContext: ExecutionContext) = {
     val promise = concurrent.Promise[Future[Iterable[Section]]]()
-    val markdownOutputDir = s"${actx.baseOutputDir}/markdown/${actx.metaData.name}"
+    val markdownOutputDir =
+      s"${actx.baseOutputDir}/markdown/${actx.metaData.name}"
     mkdirp(
       markdownOutputDir,
       (e: ErrnoException, m: Made) => {
-        if(e != null)
+        if (e != null)
           promise.failure(e.asInstanceOf[Throwable])
         else
-        promise
-          .success(Future.sequence(aMap.map(t => {
-            val f = pagesToFiles(section = t._1,
-                                 group(t._2, max),
-                                 aDir = markdownOutputDir,
-                                 ctx = actx)
-            f
-          })))
-          .future
-          .flatten
+          promise
+            .success(Future.sequence(aMap.map(t => {
+              val f = pagesToFiles(section = t._1,
+                                   group(t._2, max),
+                                   aDir = markdownOutputDir,
+                                   ctx = actx)
+              f
+            })))
+            .future
+            .flatten
       }
     )
     promise.future.flatten

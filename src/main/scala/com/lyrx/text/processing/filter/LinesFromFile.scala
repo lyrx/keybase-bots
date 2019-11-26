@@ -10,7 +10,6 @@ trait LinesFromFile {
 
   def writeLines(file: String, lines: Lines) = {
     val promise = concurrent.Promise[String]()
-
     fs.writeFile(
       file,
       lines.mkString("\n"),
