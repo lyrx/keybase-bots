@@ -27,9 +27,17 @@ object Main extends Chunker {
     else
       0
   }
-  val ctxs = Seq(may("satanundischarioti", mayRoot))
+  val ctxs = Seq(
+    "satanundischarioti",
+    "satanundischariotii",
+     "satanundischariotiii",
+    "winnetoui",
+    "winnetouii",
+    "winnetouiii",
+    "winnetouiv",
+  ).map(may(_))
 
-  def may(aName: String, base: String) = Book.from(aName, base)
+  def may(aName: String) = Book.from(aName, mayRoot)
   @JSExport
   def initt() = ctxs.map(chunk(_))
 
