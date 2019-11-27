@@ -37,7 +37,7 @@ object Main extends Chunker {
     "winnetouiii",
     "winnetouiv",
 
-     */
+
 
     "imlandedesmahdii",
     "imlandedesmahdiii",
@@ -52,11 +52,46 @@ object Main extends Chunker {
     "undfriedeauferden",
     "vonbagdadnachstambul",
     "weihnacht",
-    "derschut"
+    "derschut",
 
-
-
-  ).map(may(_))
+     */
+    "amjenseits.md",
+    "durchdiewste.md",
+    "indencordilleren.md",
+    "satanundischariotii.md",
+    "amriodelaplata.md",
+    "durchswildekurdistan.md",
+    "oldsurehandi.md",
+    "satanundischariotiii.md",
+    "amstillenocean.md",
+    "imlandedesmahdii.md",
+    "oldsurehandii.md",
+    "undfriedeauferden.md",
+    "auffremdenpfaden.md",
+    "imlandedesmahdiii.md",
+    "oldsurehandiii.md",
+    "vonbagdadnachstambul.md",
+    "dermirvondschinnistan.md",
+    "imlandedesmahdiiii.md",
+    "orangenunddatteln.md",
+    "weihnacht.md",
+    "dermirvondschinnistani.md",
+    "imreichdessilbernenlweniii.md",
+    "satanundischariotbandi.md",
+    "winnetoui.md",
+    "dermirvondschinnistanii.md",
+    "imreichdessilbernenlweniv.md",
+    "satanundischariotbandii.md",
+    "winnetouii.md",
+    "derschut.md",
+    "imreichedessilbernenlweni.md",
+    "satanundischariotbandiii.md",
+    "winnetouiii.md",
+    "durchdaslandderskipetaren.md",
+    "imreichedessilbernenlwenii.md",
+    "satanundischarioti.md",
+    "winnetouiv.md"
+  ).map(_.stripSuffix(".md")).map(may(_))
 
   def may(aName: String) = Book.from(aName, mayRoot)
   @JSExport
@@ -69,8 +104,10 @@ object Main extends Chunker {
         b => {
           //b.sections.map(section => println(section))
           b.writeMarkdownChunks(30)
-            .map(b2 => b2.writeHTMLChunks().map(b3=>
-            println(s"Processed ${b3.context.metaData.name}")))
+            .map(
+              b2 =>
+                b2.writeHTMLChunks()
+                  .map(b3 => println(s"Processed ${b3.context.metaData.name}")))
         }
       )
 
