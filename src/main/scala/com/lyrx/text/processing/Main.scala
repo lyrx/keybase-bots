@@ -10,8 +10,12 @@ import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 object Main extends Chunker {
 
   implicit val exc = ExecutionContext.global
-  val mayRoot =
-    "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources/books/KarlMay"
+
+  val books= "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources/books"
+  val mayRoot = s"${books}/KarlMay"
+  val hegel=s"${books}/GeorgWilhelmFriedrichHegel"
+
+
   val output = "/Users/alex/output"
   val h: HeaderDetection = (line) => {
     val s = line.trim
@@ -95,7 +99,22 @@ object Main extends Chunker {
 
   def may(aName: String) = Book.from(aName, mayRoot)
   @JSExport
-  def initt() = ctxs.map(chunk(_))
+  def initt() = {
+    val id = "phnomenologiedesgeistes"
+
+    Taker().
+      id(id).
+      mdPath(s"${hegel}/${id}.md").
+      readMD().map(t=>
+      t.slize(30).
+        grouping().
+        writeMarkdowns().map(
+        t=>println(t.taking.mapOpt.get.size)
+    )
+
+    )
+    //ctxs.map(chunk(_))
+  }
 
   private def chunk(book: Book) =
     book

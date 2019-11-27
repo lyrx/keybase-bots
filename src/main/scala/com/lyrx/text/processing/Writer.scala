@@ -20,6 +20,7 @@ trait Writer {
       val newName = s"${id}_${pageNumber}"
       val file: String =
         s"${aDir}/${newName}.md"
+      println(file)
       fs.writeFile(
         file,
         page.mkString("\n"),

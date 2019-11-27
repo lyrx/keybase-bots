@@ -8,7 +8,7 @@ import typings.node.NodeJS.ErrnoException
 
 import scala.concurrent.{ExecutionContext, Future}
 case class Taking(
-                   currentPathOpt: Option[String] = None,
+                   mdPathOpt: Option[String] = None,
                    idOpt:Option[String] = None,
                    slizeOpt:Option[Int] = None,
                    linesOpt:Option[Lines] = None,
@@ -17,13 +17,13 @@ case class Taking(
                  )
 
 object Taker{
-  def apply()=new Taking()
+  def apply()=new Taker(Taking())
 }
 
 class Taker(override val taking: Taking) extends LinesFromFile with Grouping2 with Writer{
 
   def mdPath(s: String) =
-    new Taker(taking.copy(currentPathOpt = Some(s)))
+    new Taker(taking.copy(mdPathOpt = Some(s)))
 
   def id(s: String) =
     new Taker(taking.copy(idOpt = Some(s)))
@@ -33,7 +33,7 @@ class Taker(override val taking: Taking) extends LinesFromFile with Grouping2 wi
 
 
   def readMD()(implicit executionContext: ExecutionContext) =   taking.
-    currentPathOpt.
+    mdPathOpt.
     map(path=>fromFile(path).map(
       lines=>
         new Taker(taking.copy(linesOpt = Some(lines))))).
