@@ -5,6 +5,9 @@ import com.lyrx.text.processing.Types.{Lines, Page, PageMap}
 import scala.concurrent.{ExecutionContext, Future}
 import typings.node
 import node.{fsMod => fs, readlineMod => readline}
+import typings.node.childUnderscoreProcessMod.spawn
+import scala.scalajs.js
+
 
 trait Writer {
 
@@ -41,6 +44,33 @@ trait Writer {
         ppageToFile(index,lines,aDir)
       }))).
       getOrElse(Future{Seq()})
+
+
+
+
+  //pandoc /Users/alex/output/satanundischarioti/satanundischarioti_1_0.md -o /Users/alex/output/satanundischarioti/satanundischarioti_1_0-frag.html
+  def toHTML(file:String,outPath:String)(implicit ctx: ExecutionContext) =
+    taking.idOpt.map(id=>
+      {
+        val promise = concurrent.Promise[Writer]
+        val html = s"${outPath}/${id}-frag.html"
+        spawn("pandoc", js.Array(file, "-o", html)).on(
+          "close",
+          (code) => {
+            promise.success(Writer.this)
+            ()
+          }
+        )
+        promise.future
+      })
+
+
+
+
+
+
+
+
 
 
 
