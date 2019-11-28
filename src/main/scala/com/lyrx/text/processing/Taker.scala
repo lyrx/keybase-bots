@@ -3,17 +3,23 @@ package com.lyrx.text.processing
 import com.lyrx.text.processing.Types.{Lines, Page, PageMap}
 import com.lyrx.text.processing.filter.LinesFromFile
 import typings.mkdirp.mkdirpMod.{Made, ^ => mkdirp}
-import typings.node.NodeJS.ErrnoException
+import typings.node
+import node.{fsMod => fs, readlineMod => readline}
+import node.NodeJS.ErrnoException
+import typings.node.fsMod.PathLike
 
-
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.scalajs.js
+import scala.scalajs.js.|
 case class Taking(
-                   mdPathOpt: Option[String] = None,
+                   mdInputPathOpt: Option[String] = None,
                    idOpt:Option[String] = None,
                    slizeOpt:Option[Int] = None,
                    linesOpt:Option[Lines] = None,
                    mapOpt:Option[PageMap] = None,
-                   outPath:String = "/Users/alex/output"
+                   outPath:String = "/Users/alex/output",
+                   mdOutputPathOpt:Option[String] = None,
+                   mdFrags:Iterable[String] = Seq()
                  )
 
 object Taker{
@@ -23,7 +29,7 @@ object Taker{
 class Taker(override val taking: Taking) extends LinesFromFile with Grouping2 with Writer{
 
   def mdPath(s: String) =
-    new Taker(taking.copy(mdPathOpt = Some(s)))
+    new Taker(taking.copy(mdInputPathOpt = Some(s)))
 
   def id(s: String) =
     new Taker(taking.copy(idOpt = Some(s)))
@@ -33,7 +39,7 @@ class Taker(override val taking: Taking) extends LinesFromFile with Grouping2 wi
 
 
   def readMD()(implicit executionContext: ExecutionContext) =   taking.
-    mdPathOpt.
+    mdInputPathOpt.
     map(path=>fromFile(path).map(
       lines=>
         new Taker(taking.copy(linesOpt = Some(lines))))).
@@ -47,6 +53,32 @@ class Taker(override val taking: Taking) extends LinesFromFile with Grouping2 wi
     )).getOrElse(Taker.this)
 
 
+ def listMarkdownFrags()(implicit executionContext:ExecutionContext) = {
+   val promise = Promise[js.Array[String]]()
+   taking.mdOutputPathOpt.map(
+     path=> fs.readdir(
+       path,
+       (e:ErrnoException | Null, r:js.Array[String])=>{
+       ()
+     })
+   )
+   promise.
+     future
+ }
+
+  def writeHTMLs()(implicit executionContext:ExecutionContext) = taking.
+    idOpt.map(id=>
+    mmkdirp(s"${taking.outPath}/html/${id}").
+    map(dir=>listMarkdownFrags().
+    map(frags=>{}))
+  )
+
+
+
+
+
+
+
   def writeMarkdowns()(implicit executionContext:ExecutionContext)=taking.idOpt.map(
     id=>{
       val promise = concurrent.Promise[Taker]()
@@ -58,7 +90,12 @@ class Taker(override val taking: Taking) extends LinesFromFile with Grouping2 wi
             promise.failure(e.asInstanceOf[Throwable])
           else
             ppagesToFiles(markdownOutputDir).
-              map(r=>promise.success(Taker.this))
+              map((r:Iterable[String])=>promise.success(
+                new Taker(this.taking.copy(
+                  mdOutputPathOpt=Some(markdownOutputDir),
+                  mdFrags=r
+                ))
+              ))
         )
     promise.future
     }

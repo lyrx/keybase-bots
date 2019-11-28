@@ -108,10 +108,8 @@ object Main extends Chunker {
       readMD().map(t=>
       t.slize(30).
         grouping().
-        writeMarkdowns().map(
-        t=>println(t.taking.mapOpt.get.size)
-    )
-
+        writeMarkdowns().
+        map(_.listMarkdownFrags())
     )
     //ctxs.map(chunk(_))
   }

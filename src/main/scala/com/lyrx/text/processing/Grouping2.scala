@@ -1,14 +1,6 @@
 package com.lyrx.text.processing
 
 import com.lyrx.text.processing.Types._
-import typings.mkdirp.mkdirpMod.{Made, ^ => mkdirp}
-import typings.node
-import typings.node.NodeJS.ErrnoException
-import typings.node.fsMod.ReadStream
-import typings.node.readlineMod.Interface
-import typings.node.{fsMod => fs, readlineMod => readline}
-
-import scala.concurrent.{ExecutionContext, Future}
 
 trait Grouping2 {
 
