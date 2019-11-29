@@ -8,9 +8,6 @@ trait Grouping2 {
 
   val taking: Taking
 
-
-
-
   def toPars(lines: Lines): ParMap = {
     var counter = 0
     lines.groupBy[Int]((line: String) => {
@@ -51,11 +48,12 @@ trait Grouping2 {
 
   def toSections()(implicit executionContext: ExecutionContext) =
     toSectionsMap().map(
-      _.map(t=>{
-        new Taker(taking.copy(
-          sectionNum = t._1,
-          linesOpt = Some(t._2)
-        ))
+      _.map(t => {
+        new Taker(
+          taking.copy(
+            sectionNum = t._1,
+            linesOpt = Some(t._2)
+          ))
       })
     )
 

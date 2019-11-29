@@ -13,8 +13,6 @@ trait Markdown {
 
   val taking: Taking
 
-
-
   def listMarkdownFrags()(implicit executionContext: ExecutionContext) = {
     val promise = Promise[js.Array[String]]()
     taking.mdOutputPathOpt.map(
@@ -25,7 +23,5 @@ trait Markdown {
     )
     promise.future
   }
-
-
 
 }
