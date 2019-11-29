@@ -31,34 +31,7 @@ object Main extends Chunker {
     else
       0
   }
-  val ctxs = Seq(
-    /*
-    "satanundischarioti",
-    "satanundischariotii",
-     "satanundischariotiii",
-    "winnetoui",
-    "winnetouii",
-    "winnetouiii",
-    "winnetouiv",
-
-
-
-    "imlandedesmahdii",
-    "imlandedesmahdiii",
-    "imlandedesmahdiiii",
-    "imreichdessilbernenlweniii",
-    "imreichdessilbernenlweniv",
-    "dermirvondschinnistani",
-    "dermirvondschinnistanii",
-    "durchdaslandderskipetaren",
-    "durchdiewste",
-    "durchswildekurdistan",
-    "undfriedeauferden",
-    "vonbagdadnachstambul",
-    "weihnacht",
-    "derschut",
-
-     */
+  def karlMayBooks():Seq[Book] = Seq(
     "amjenseits.md",
     "durchdiewste.md",
     "indencordilleren.md",
@@ -101,6 +74,7 @@ object Main extends Chunker {
   @JSExport
   def initt() = {
     generate(hegel)("phnomenologiedesgeistes")
+    karlMayBooks.map(chunk(_))
   }
 
 
