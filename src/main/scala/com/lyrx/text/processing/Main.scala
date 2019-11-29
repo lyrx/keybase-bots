@@ -1,6 +1,7 @@
 package com.lyrx.text.processing
 
 import com.lyrx.text.processing.Types.HeaderDetection
+import com.lyrx.text.processing.filter.Filters
 import typings.node
 import node.{fsMod => fs}
 
@@ -75,8 +76,19 @@ object Main extends Chunker {
   def may(aName: String) = Book.from(aName, mayRoot)
   @JSExport
   def initt() = {
-    generate(hegel)("phnomenologiedesgeistes")
+    //generate(hegel)("phnomenologiedesgeistes")
     //karlMayBooks.map(chunk(_))
+    Taker().
+      mdPath(s"${books}/LudwigWittgenstein/tractatus.md").
+      withFilter(Filters.tractatus).
+      readMD().
+      map(taker=>{
+        taker.
+          filter().
+          writeLines(
+          s"${taker.taking.outPath}/wittg.md"
+        )
+      })
   }
 
 
