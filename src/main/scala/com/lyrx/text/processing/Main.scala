@@ -108,7 +108,9 @@ object Main extends Chunker {
       Future.sequence(sequence.map(
         taker=>taker.slize(30).
           grouping().
-          writeMarkdowns())
+          writeMarkdowns().map(
+          taker=>taker.writeHTMLs()
+        ))
       ))
     ).flatten
   }

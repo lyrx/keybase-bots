@@ -7,11 +7,27 @@ import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.scalajs.js
 import scala.scalajs.js.|
 import typings.node
-
 import node.{fsMod => fs}
+import typings.node.childUnderscoreProcessMod.spawn
 trait Generator {
 
   val taking: Taking
+
+
+  def pandoc(inFile:String,outFile:String)(implicit ctx: ExecutionContext) ={
+    val promise = concurrent.Promise[String]
+    spawn("pandoc",
+      js.Array(inFile, "-o", outFile)).
+      on(
+        "close",
+        (code) => {
+          promise.success(outFile)
+          ()
+        }
+      )
+    promise.future
+  }
+
 
   def listMarkdownFrags()(implicit executionContext: ExecutionContext) = {
     val promise = Promise[js.Array[String]]()
