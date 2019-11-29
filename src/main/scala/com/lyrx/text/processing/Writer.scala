@@ -25,12 +25,12 @@ trait Writer {
     promise.future
   }
 
-  def ppageToFile(pageNumber: Int, page: Page, aDir: String)(
+  def ppageToFile(pageNumber: Int, sectionNumber:Int, page: Page, aDir: String)(
       implicit executionContext: ExecutionContext) =
     taking.idOpt
       .map(id => {
         val promise = concurrent.Promise[Option[String]]()
-        val newName = s"${id}_${pageNumber}"
+        val newName = s"${id}_${sectionNumber}_${pageNumber}"
         val file: String =
           s"${aDir}/${newName}.md"
         fs.writeFile(
@@ -51,7 +51,7 @@ trait Writer {
         Future.sequence(amap.map(page => {
           val index: Int = page._1
           val lines: Page = page._2
-          ppageToFile(index, lines, aDir)
+          ppageToFile(index, taking.sectionNum,lines, aDir)
         })))
       .getOrElse(Future { Seq() })
     .map(_.flatten)
@@ -59,6 +59,7 @@ trait Writer {
   //pandoc /Users/alex/output/satanundischarioti/satanundischarioti_1_0.md -o /Users/alex/output/satanundischarioti/satanundischarioti_1_0-frag.html
   def toHTML(file: String,
              index:Int,
+             sectionNum:Int,
              outPath: String)(implicit ctx: ExecutionContext) =
     taking.idOpt.map(id => {
       val promise = concurrent.Promise[Writer]

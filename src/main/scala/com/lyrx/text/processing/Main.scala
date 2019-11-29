@@ -101,17 +101,16 @@ object Main extends Chunker {
   @JSExport
   def initt() = {
     val id = "phnomenologiedesgeistes"
-
     Taker().
       id(id).
       mdPath(s"${hegel}/${id}.md").
-      readMD().map(t=>
-      t.slize(30).
-        grouping().
-        writeMarkdowns().
-        map(_.listMarkdownFrags())
-    )
-    //ctxs.map(chunk(_))
+      readMD().flatMap(_.toSections().map(sequence=>
+      Future.sequence(sequence.map(
+        taker=>taker.slize(30).
+          grouping().
+          writeMarkdowns())
+      ))
+    ).flatten
   }
 
   private def chunk(book: Book) =

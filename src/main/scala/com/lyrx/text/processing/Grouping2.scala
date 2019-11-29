@@ -2,7 +2,11 @@ package com.lyrx.text.processing
 
 import com.lyrx.text.processing.Types._
 
+import scala.concurrent.ExecutionContext
+
 trait Grouping2 {
+
+  val taking: Taking
 
   def toPars(lines: Lines): ParMap = {
     var counter = 0
@@ -27,6 +31,52 @@ trait Grouping2 {
     })
   }
 
+  def detectHeader(line: String) = {
+    val s = line.trim
 
+    if (s.startsWith("####"))
+      4
+    else if (s.startsWith("###"))
+      3
+    else if (s.startsWith("##"))
+      2
+    else if (s.startsWith("#"))
+      1
+    else
+      0
+  }
+
+  def toSections()(implicit executionContext: ExecutionContext) =
+    toSectionsMap().map(
+      _.map(t=>{
+        new Taker(taking.copy(
+          sectionNum = t._1,
+          linesOpt = Some(t._2)
+        ))
+      })
+    )
+
+  def toSectionsMap()(implicit executionContext: ExecutionContext) = {
+
+    val p = concurrent.Promise[Map[Int, Lines]]()
+
+    taking.linesOpt.map(lines => {
+      var counter = 0;
+      var aTitleOpt: Option[String] = None;
+      var headerLevel = -1
+
+      val grouped = lines
+        .groupBy[Int]((line: String) => {
+          val aLevel = detectHeader(line)
+          if (aLevel > 0) {
+            headerLevel = aLevel
+            counter = counter + 1
+            counter
+          } else counter
+        })
+      p.success(grouped)
+    })
+    p.future
+  }
 
 }
