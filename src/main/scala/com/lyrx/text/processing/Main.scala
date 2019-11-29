@@ -80,14 +80,13 @@ object Main extends Chunker {
     //karlMayBooks.map(chunk(_))
     Taker().
       mdPath(s"${books}/LudwigWittgenstein/tractatus.md").
+      id("traktatus").
       withFilter(Filters.tractatus).
       readMD().
-      map(taker=>{
+      flatMap(taker=>{
         taker.
           filter().
-          writeLines(
-          s"${taker.taking.outPath}/wittg.md"
-        )
+          mdAndHTML()
       })
   }
 
@@ -95,7 +94,8 @@ object Main extends Chunker {
   def generate(base:String)(id:String) = Taker().
     id(id).
     mdPath(s"${base}/${id}.md").
-    mdAndHTML()
+    readMD().flatMap(
+    _.mdAndHTML())
 
 
 
