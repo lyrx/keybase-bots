@@ -78,18 +78,18 @@ object Main extends Chunker {
   def initt() = {
     //generate(hegel)("phnomenologiedesgeistes")
     //karlMayBooks.map(chunk(_))
+    //traktatus
+  }
+
+
+  private def traktatus = {
     Taker().
       mdPath(s"${books}/LudwigWittgenstein/tractatus.md").
       id("traktatus").
       withFilter(Filters.tractatus).
       readMD().
-      flatMap(taker=>{
-        taker.
-          filter().
-          mdAndHTML()
-      })
+      flatMap(_.filter().mdAndHTML())
   }
-
 
   def generate(base:String)(id:String) = Taker().
     id(id).
