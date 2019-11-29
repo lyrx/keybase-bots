@@ -14,6 +14,19 @@ trait Writer {
 
   val taking: Taking
 
+  def writeAFile(file:String)=taking.linesOpt.map(
+    lines=> {
+    val promise = Promise[String]()
+    fs.writeFile(
+      file,
+      lines.mkString("\n"),
+      (e) => {
+        promise.success(file)
+        ()
+      })
+      promise.future
+  })
+
   def mmkdirp(dir: String) = {
     val promise = Promise[String]()
     mkdirp(dir,

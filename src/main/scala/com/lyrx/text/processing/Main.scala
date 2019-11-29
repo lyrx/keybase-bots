@@ -14,6 +14,8 @@ object Main extends Chunker {
   val books= "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources/books"
   val mayRoot = s"${books}/KarlMay"
   val hegel=s"${books}/GeorgWilhelmFriedrichHegel"
+  val dickens=s"${books}/CharlesDickens"
+  val schiller=s"${books}/FriedrichSchiller"
 
 
   val output = "/Users/alex/output"
@@ -74,7 +76,7 @@ object Main extends Chunker {
   @JSExport
   def initt() = {
     generate(hegel)("phnomenologiedesgeistes")
-    karlMayBooks.map(chunk(_))
+    //karlMayBooks.map(chunk(_))
   }
 
 
