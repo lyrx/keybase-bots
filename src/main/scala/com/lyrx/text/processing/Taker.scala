@@ -31,7 +31,7 @@ class Taker(override val taking: Taking)
     extends LinesFromFile
     with Grouping2
     with Writer
-    with Markdown {
+    with Generator {
 
   def mdPath(s: String) =
     new Taker(taking.copy(mdInputPathOpt = Some(s)))

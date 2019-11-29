@@ -9,7 +9,7 @@ import scala.scalajs.js.|
 import typings.node
 
 import node.{fsMod => fs}
-trait Markdown {
+trait Generator {
 
   val taking: Taking
 
