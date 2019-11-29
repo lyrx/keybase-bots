@@ -4,7 +4,7 @@ import com.lyrx.text.processing.Types.{Lines, Page, PageMap}
 import com.lyrx.text.processing.filter.LinesFromFile
 import typings.mkdirp.mkdirpMod.{Made, ^ => mkdirp}
 import typings.node
-import node.{fsMod => fs, readlineMod => readline}
+
 import node.NodeJS.ErrnoException
 import typings.node.fsMod.PathLike
 
@@ -30,16 +30,12 @@ object Taker {
 class Taker(override val taking: Taking)
     extends LinesFromFile
     with Grouping2
-    with Writer {
+    with Writer
+    with Markdown {
 
   def mdPath(s: String) =
     new Taker(taking.copy(mdInputPathOpt = Some(s)))
 
-  def id(s: String) =
-    new Taker(taking.copy(idOpt = Some(s)))
-
-  def slize(num: Int) =
-    new Taker(taking.copy(slizeOpt = Some(num)))
 
   def readMD()(implicit executionContext: ExecutionContext) =
     taking.mdInputPathOpt
@@ -47,6 +43,14 @@ class Taker(override val taking: Taking)
         fromFile(path).map(lines =>
           new Taker(taking.copy(linesOpt = Some(lines)))))
       .getOrElse(Future { Taker.this })
+
+
+  def id(s: String) =
+    new Taker(taking.copy(idOpt = Some(s)))
+
+  def slize(num: Int) =
+    new Taker(taking.copy(slizeOpt = Some(num)))
+
 
   def grouping() =
     taking.linesOpt
@@ -57,16 +61,6 @@ class Taker(override val taking: Taking)
         ))
       .getOrElse(Taker.this)
 
-  def listMarkdownFrags()(implicit executionContext: ExecutionContext) = {
-    val promise = Promise[js.Array[String]]()
-    taking.mdOutputPathOpt.map(
-      path =>
-        fs.readdir(path, (e: ErrnoException | Null, r: js.Array[String]) => {
-          ()
-        })
-    )
-    promise.future
-  }
 
   def writeHTMLs()(implicit executionContext: ExecutionContext) =
     taking.idOpt.map(id =>
