@@ -108,12 +108,14 @@ object Main extends Chunker {
       Future.sequence(sequence.map(
         taker=>taker.slize(30).
           grouping().
-          writeMarkdowns().map(
-          taker=>taker.writeHTMLs()
-        ))
+          writeMarkdowns().map(_.writeHTMLs()))
       ))
-    ).flatten
+    ).flatten.
+      map(it=>Future.sequence(it)).flatten
   }
+
+
+
 
   private def chunk(book: Book) =
     book

@@ -102,4 +102,17 @@ class Taker(override val taking: Taking)
       )
       .getOrElse(Future { Taker.this })
 
+  def mdAndHTML()(implicit executionContext: ExecutionContext) =
+    readMD().flatMap(_.toSections().map(sequence=>
+    Future.sequence(sequence.map(
+      taker=>taker.slize(30).
+        grouping().
+        writeMarkdowns().map(_.writeHTMLs()))
+    ))
+  ).flatten.
+    map(it=>Future.sequence(it))
+      .flatten
+
+
+
 }
