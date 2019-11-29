@@ -100,19 +100,14 @@ object Main extends Chunker {
   def may(aName: String) = Book.from(aName, mayRoot)
   @JSExport
   def initt() = {
-    val id = "phnomenologiedesgeistes"
-    Taker().
-      id(id).
-      mdPath(s"${hegel}/${id}.md").
-      readMD().flatMap(_.toSections().map(sequence=>
-      Future.sequence(sequence.map(
-        taker=>taker.slize(30).
-          grouping().
-          writeMarkdowns().map(_.writeHTMLs()))
-      ))
-    ).flatten.
-      map(it=>Future.sequence(it)).flatten
+    generate(hegel)("phnomenologiedesgeistes")
   }
+
+
+  def generate(base:String)(id:String) = Taker().
+    id(id).
+    mdPath(s"${base}/${id}.md").
+    mdAndHTML()
 
 
 
