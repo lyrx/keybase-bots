@@ -95,18 +95,19 @@ object Main extends Chunker {
     //traktatus
     //doDickens()
     //generate(s"${books}/FriedrichSchiller")("aesthetik")
+    koblach
+  }
+
+
+  private def koblach = {
     Taker().
       id("koblach").
       collectFrom(s"${koblach}/novel.md").
       map(_.
         fromMark("t1").
-        writeMarkdown().
-        map(taker=>{
-          println(taker.taking.linesOpt)
-        })
+        writeMarkdown()
       )
   }
-
 
   private def traktatus = {
     Taker().
