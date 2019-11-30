@@ -12,7 +12,13 @@ object Main extends Chunker {
 
   implicit val exc = ExecutionContext.global
 
-  val books= "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources/books"
+
+  val resources= "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources"
+  val creative = s"${resources}/creative"
+  val kuendigung = s"${creative}/kuendigung"
+  val koblach =  s"${kuendigung}/koblach"
+
+  val books= s"${resources}/books"
   val mayRoot = s"${books}/KarlMay"
   val hegel=s"${books}/GeorgWilhelmFriedrichHegel"
   val dickens=s"${books}/CharlesDickens"
@@ -87,7 +93,15 @@ object Main extends Chunker {
     //generate(hegel)("phnomenologiedesgeistes")
     //karlMayBooks.map(chunk(_))
     //traktatus
-    doDickens()
+    //doDickens()
+    //generate(s"${books}/FriedrichSchiller")("aesthetik")
+    Taker().
+      id("koblach").
+      collectFrom(s"${koblach}/novel.md").
+      map(_.
+        fromMark(":anderer").
+        writeMarkdown()
+      )
   }
 
 

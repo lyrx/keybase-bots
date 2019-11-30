@@ -1,7 +1,7 @@
 package com.lyrx.text.processing
 
 import com.lyrx.text.processing.Types.{Lines, PageMap}
-import com.lyrx.text.processing.filter.{LineFilter, LinesFromFile}
+import com.lyrx.text.processing.filter.{Filters, LineFilter, LinesFromFile}
 import typings.mkdirp.mkdirpMod.{Made, ^ => mkdirp}
 import typings.node
 import node.NodeJS.ErrnoException
@@ -18,7 +18,8 @@ case class Taking(
     mdFrags: Iterable[String] = Seq(),
     htmlFrags: Iterable[String] = Seq(),
     sectionNum: Int = 0,
-    filterOpt:Option[Lines=>Lines] = None
+    filterOpt:Option[Lines=>Lines] = None,
+    linesCollectorOpt:Option[Lines] = None
 )
 
 object Taker {
@@ -49,6 +50,19 @@ class Taker(override val taking: Taking)
       getOrElse(Future{Taker.this})
 
 
+
+  def writeMarkdown()(
+    implicit executionContext: ExecutionContext) =   taking.
+    idOpt.map(id=>{
+    val dir = markdownFragPath(id)
+    mmkdirp(dir).map(adir=>
+      writeLines(s"${adir}/${id}.md")
+    ).flatten
+  }).getOrElse(Future{Taker.this})
+
+
+
+
   def mdPath(s: String) =
     new Taker(taking.copy(mdInputPathOpt = Some(s)))
 
@@ -58,6 +72,29 @@ class Taker(override val taking: Taking)
         fromFile(path).map(lines =>
           new Taker(taking.copy(linesOpt = Some(lines)))))
       .getOrElse(Future { Taker.this })
+
+  def collectFrom(s: String)(
+    implicit executionContext: ExecutionContext) =
+    fromFile(s).map(lines =>
+    new Taker(taking.copy(linesCollectorOpt = Some(lines))))
+
+  def fromMark(mark:String): Taker =new Taker(taking.copy(filterOpt=Some(
+      Filters.filterMarker(mark) _
+    ))).
+    applyCollectorFilter()
+
+  def applyCollectorFilter()=taking.
+    filterOpt.
+    flatMap(filter=>taking.linesCollectorOpt.flatMap(
+      collectorLines=>taking.
+        linesOpt.
+        map(lines=>
+          new Taker(taking.copy(
+            linesOpt = Some(
+              lines ++ filter(
+                collectorLines))))))).
+    getOrElse(Taker.this)
+
 
   def id(s: String) =
     new Taker(taking.copy(idOpt = Some(s)))
