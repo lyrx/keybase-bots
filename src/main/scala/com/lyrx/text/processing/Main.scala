@@ -100,7 +100,10 @@ object Main extends Chunker {
       collectFrom(s"${koblach}/novel.md").
       map(_.
         fromMark(":anderer").
-        writeMarkdown()
+        writeMarkdown().
+        map(taker=>{
+          println(taker.taking.linesOpt)
+        })
       )
   }
 

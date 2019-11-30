@@ -55,8 +55,11 @@ class Taker(override val taking: Taking)
     implicit executionContext: ExecutionContext) =   taking.
     idOpt.map(id=>{
     val dir = markdownFragPath(id)
-    mmkdirp(dir).map(adir=>
-      writeLines(s"${adir}/${id}.md")
+    mmkdirp(dir).map(adir=>{
+      val afile = s"${adir}/${id}.md"
+      writeLines(afile)
+    }
+
     ).flatten
   }).getOrElse(Future{Taker.this})
 
@@ -85,15 +88,14 @@ class Taker(override val taking: Taking)
 
   def applyCollectorFilter()=taking.
     filterOpt.
-    flatMap(filter=>taking.linesCollectorOpt.flatMap(
-      collectorLines=>taking.
-        linesOpt.
-        map(lines=>
-          new Taker(taking.copy(
-            linesOpt = Some(
-              lines ++ filter(
-                collectorLines))))))).
-    getOrElse(Taker.this)
+    flatMap(filter=>taking.linesCollectorOpt.map(
+      collectorLines=>
+        new Taker(taking.copy(
+          linesOpt = Some(
+            taking.linesOpt.getOrElse(Seq()) ++ filter(
+              collectorLines))))
+      )).getOrElse(Taker.this)
+
 
 
   def id(s: String) =
