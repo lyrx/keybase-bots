@@ -74,11 +74,20 @@ object Main extends Chunker {
   ).map(_.stripSuffix(".md")).map(may(_))
 
   def may(aName: String) = Book.from(aName, mayRoot)
+
+  def doDickens() = {
+    val d = generate(dickens) _
+    Seq("greatexpectations","littledorrit","olivertwist").
+      map(d(_))
+
+  }
+
   @JSExport
   def initt() = {
     //generate(hegel)("phnomenologiedesgeistes")
     //karlMayBooks.map(chunk(_))
     //traktatus
+    doDickens()
   }
 
 
