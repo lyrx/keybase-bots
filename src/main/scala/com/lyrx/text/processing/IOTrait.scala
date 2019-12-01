@@ -16,11 +16,21 @@ trait IOTrait extends LinesFromFile{
   val taking: Taking
 
 
-  def writeLines(file:String)(
+
+  def withOutPath(p:String) = new Taker(
+    taking.
+    copy(outPath = p))
+
+  def writeToPath(file:String)(
     implicit executionContext: ExecutionContext): Future[Taker] =
     writeAFile(file).
       map(_.map(s=>new Taker(taking))).
       getOrElse(Future{new Taker(taking)})
+
+  def writeToFile(name:String)(
+    implicit executionContext: ExecutionContext): Future[Taker] =
+    writeToPath(s"${taking.outPath}/${name}")
+
 
 
 
