@@ -18,8 +18,8 @@ case class Taking(
     mdFrags: Iterable[String] = Seq(),
     htmlFrags: Iterable[String] = Seq(),
     sectionNum: Int = 0,
-    filterOpt:Option[Lines=>Lines] = None,
-    linesCollectorOpt:Option[Lines] = None
+    filterOpt: Option[Lines => Lines] = None,
+    linesCollectorOpt: Option[Lines] = None
 )
 
 object Taker {
@@ -31,18 +31,11 @@ class Taker(override val taking: Taking)
     with Grouping2
     with HTML2
     with IOTrait
-    with Generator
-      with Collector {
+    with Collector
+    with Markdown {
 
-  def  withFilter(f:Lines=>Lines) =
-  new Taker(  taking.copy(filterOpt = Some(f)))
-
-
-
-
-
-
-
+  def withFilter(f: Lines => Lines) =
+    new Taker(taking.copy(filterOpt = Some(f)))
 
   def mdPath(s: String) =
     new Taker(taking.copy(mdInputPathOpt = Some(s)))
@@ -54,27 +47,27 @@ class Taker(override val taking: Taking)
           new Taker(taking.copy(linesOpt = Some(lines)))))
       .getOrElse(Future { Taker.this })
 
-  def collectFrom(s: String)(
-    implicit executionContext: ExecutionContext) =
+  def collectFrom(s: String)(implicit executionContext: ExecutionContext) =
     fromFile(s).map(lines =>
-    new Taker(taking.copy(linesCollectorOpt = Some(lines))))
+      new Taker(taking.copy(linesCollectorOpt = Some(lines))))
 
-  def fromMark(mark:String): Taker =new Taker(taking.copy(filterOpt=Some(
-      Filters.filterMarker(mark) _
-    ))).
-    applyCollectorFilter()
+  def fromMark(mark: String): Taker =
+    new Taker(
+      taking.copy(
+        filterOpt = Some(
+          Filters.filterMarker(mark) _
+        ))).applyCollectorFilter()
 
-  def applyCollectorFilter()=taking.
-    filterOpt.
-    flatMap(filter=>taking.linesCollectorOpt.map(
-      collectorLines=>
-        new Taker(taking.copy(
-          linesOpt = Some(
-            taking.linesOpt.getOrElse(Seq()) ++ filter(
-              collectorLines))))
-      )).getOrElse(Taker.this)
-
-
+  def applyCollectorFilter() =
+    taking.filterOpt
+      .flatMap(
+        filter =>
+          taking.linesCollectorOpt.map(
+            collectorLines =>
+              new Taker(taking.copy(linesOpt = Some(
+                taking.linesOpt.getOrElse(Seq()) ++ filter(collectorLines))))
+        ))
+      .getOrElse(Taker.this)
 
   def id(s: String) =
     new Taker(taking.copy(idOpt = Some(s)))
@@ -82,12 +75,7 @@ class Taker(override val taking: Taking)
   def slize(num: Int) =
     new Taker(taking.copy(slizeOpt = Some(num)))
 
-
-
-
-
   def markdownFragPath(aId: String) = s"${taking.outPath}/markdown/${aId}"
-
 
   def writeMarkdowns()(implicit executionContext: ExecutionContext) =
     taking.idOpt
@@ -117,15 +105,11 @@ class Taker(override val taking: Taking)
       .getOrElse(Future { Taker.this })
 
   def mdAndHTML()(implicit executionContext: ExecutionContext) =
-    toSections().flatMap(sequence=>
-    Future.sequence(sequence.map(
-      taker=>taker.slize(30).
-        grouping().
-        writeMarkdowns().map(_.writeHTMLs()))
-    )).map(Future.sequence(_)).flatten
-
-
-
-
+    toSections()
+      .flatMap(sequence =>
+        Future.sequence(sequence.map(taker =>
+          taker.slize(30).grouping().writeMarkdowns().map(_.writeHTMLs()))))
+      .map(Future.sequence(_))
+      .flatten
 
 }
