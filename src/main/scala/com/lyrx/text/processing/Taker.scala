@@ -51,18 +51,6 @@ class Taker(override val taking: Taking)
 
 
 
-  def writeMarkdown()(
-    implicit executionContext: ExecutionContext) =   taking.
-    idOpt.map(id=>{
-    val dir = markdownFragPath(id)
-    mmkdirp(dir).map(adir=>{
-      val afile = s"${adir}/${id}.md"
-      writeLines(afile)
-    }
-
-    ).flatten
-  }).getOrElse(Future{Taker.this})
-
 
 
 
