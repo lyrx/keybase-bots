@@ -7,7 +7,7 @@ import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.scalajs.js
 import scala.scalajs.js.|
 import typings.node
-import node.{fsMod => fs}
+
 import typings.node.childUnderscoreProcessMod.spawn
 trait Generator {
 
@@ -29,15 +29,6 @@ trait Generator {
   }
 
 
-  def listMarkdownFrags()(implicit executionContext: ExecutionContext) = {
-    val promise = Promise[js.Array[String]]()
-    taking.mdOutputPathOpt.map(
-      path =>
-        fs.readdir(path, (e: ErrnoException | Null, r: js.Array[String]) => {
-          ()
-        })
-    )
-    promise.future
-  }
+
 
 }
