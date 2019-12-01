@@ -1,8 +1,10 @@
 package com.lyrx.text.processing
 
+import com.lyrx.text.processing.filter.LinesFromFile
+
 import scala.concurrent.{ExecutionContext, Future}
 
-trait Collector {
+trait Collector extends LinesFromFile{
   val taking: Taking
 
   def filter():Taker = taking.linesOpt.
