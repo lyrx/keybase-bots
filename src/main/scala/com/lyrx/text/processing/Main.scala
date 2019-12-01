@@ -104,7 +104,8 @@ object Main extends Chunker {
       id("koblach").
       collectFrom(s"${koblach}/novel.md").
       map(_.
-        fromMark("t1").
+        //fromMark("t1").
+      all().
         writeLines(s"${koblach}/whois.md")
       )
   }
