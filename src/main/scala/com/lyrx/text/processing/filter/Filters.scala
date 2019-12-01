@@ -28,6 +28,7 @@ object Filters {
       case _ => Seq[String](line)
     }).flatten
 
+def ALL:Lines => Lines =  (s) => s
 
   def filterMarker(marker:String)(in: Seq[String]):Seq[String] =
     in.dropWhile(!_.matches(marker)).
