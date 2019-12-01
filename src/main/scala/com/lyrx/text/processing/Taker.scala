@@ -34,31 +34,7 @@ class Taker(override val taking: Taking)
     with CollectorFilter
     with Markdown {
 
-  def withFilter(f: Lines => Lines) =
-    new Taker(taking.copy(filterOpt = Some(f)))
 
-
-  def collectFrom(s: String)(implicit executionContext: ExecutionContext) =
-    fromFile(s).map(lines =>
-      new Taker(taking.copy(linesCollectorOpt = Some(lines))))
-
-  def fromMark(mark: String): Taker =
-    new Taker(
-      taking.copy(
-        filterOpt = Some(
-          Filters.filterMarker(mark) _
-        ))).applyCollectorFilter()
-
-  def applyCollectorFilter() =
-    taking.filterOpt
-      .flatMap(
-        filter =>
-          taking.linesCollectorOpt.map(
-            collectorLines =>
-              new Taker(taking.copy(linesOpt = Some(
-                taking.linesOpt.getOrElse(Seq()) ++ filter(collectorLines))))
-        ))
-      .getOrElse(Taker.this)
 
   def id(s: String) =
     new Taker(taking.copy(idOpt = Some(s)))
