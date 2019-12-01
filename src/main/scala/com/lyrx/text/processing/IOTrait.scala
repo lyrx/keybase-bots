@@ -1,6 +1,7 @@
 package com.lyrx.text.processing
 
 import com.lyrx.text.processing.Types.{Lines, Page, PageMap}
+import com.lyrx.text.processing.filter.LinesFromFile
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.scalajs.js
@@ -10,7 +11,7 @@ import node.childUnderscoreProcessMod.spawn
 import node.{fsMod => fs, readlineMod => readline}
 import node.NodeJS.ErrnoException
 
-trait IOTrait {
+trait IOTrait extends LinesFromFile{
 
   val taking: Taking
 
