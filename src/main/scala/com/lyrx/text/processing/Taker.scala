@@ -84,21 +84,10 @@ class Taker(override val taking: Taking)
 
 
 
-  def writeHTMLs()(implicit executionContext: ExecutionContext) =
-    taking.idOpt
-      .map(id =>
-        mmkdirp(htmlFragPath(id)).flatMap(dir =>
-          Future
-            .sequence(taking.mdFrags.map(mdFrag => {
-              val baseName =
-                mdFrag.stripSuffix(".md").substring(mdFrag.lastIndexOf('/') + 1)
-              pandoc(mdFrag, s"${dir}/${baseName}-frag.html")
-            }))
-            .map(it => new Taker(taking.copy(htmlFrags = it)))))
-      .getOrElse(Future { Taker.this })
+
 
   def markdownFragPath(aId: String) = s"${taking.outPath}/markdown/${aId}"
-  def htmlFragPath(aId: String) = s"${taking.outPath}/html/${aId}"
+
 
   def writeMarkdowns()(implicit executionContext: ExecutionContext) =
     taking.idOpt
