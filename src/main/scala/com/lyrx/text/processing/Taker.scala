@@ -29,6 +29,7 @@ object Taker {
 class Taker(override val taking: Taking)
     extends LinesFromFile
     with Grouping2
+    with HTML2
     with IOTrait
     with Generator
       with Collector {
@@ -81,14 +82,7 @@ class Taker(override val taking: Taking)
   def slize(num: Int) =
     new Taker(taking.copy(slizeOpt = Some(num)))
 
-  def grouping() =
-    taking.linesOpt
-      .flatMap(
-        lines =>
-          taking.slizeOpt.map(
-            slize => new Taker(taking.copy(mapOpt = Some(group(lines, slize))))
-        ))
-      .getOrElse(Taker.this)
+
 
   def writeHTMLs()(implicit executionContext: ExecutionContext) =
     taking.idOpt

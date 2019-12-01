@@ -18,6 +18,15 @@ trait Grouping2 {
     })
   }
 
+  def grouping() =
+    taking.linesOpt
+      .flatMap(
+        lines =>
+          taking.slizeOpt.map(
+            slize => new Taker(taking.copy(mapOpt = Some(group(lines, slize))))
+          ))
+      .getOrElse(new Taker(taking))
+
   def group(lines: Lines, max: Int): PageMap = {
     var counter = 0
     var lineCounter = 0
