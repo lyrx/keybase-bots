@@ -97,10 +97,17 @@ object Main extends Chunker {
     //traktatus
     //doDickens()
     //generate(s"${books}/FriedrichSchiller")("aesthetik")
-    doKoblach
-    doDiary()
+    //doKoblach
+    //doDiary()
+    doHegel()
   }
 
+  private def doHegel(){
+    generate(
+      s"${books}/GeorgWilhelmFriedrichHegel")(
+      "phnomenologiedesgeistes")
+
+  }
   private def doKoblach() = {
     Taker()
       .id("koblach")
