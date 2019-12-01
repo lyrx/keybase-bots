@@ -10,9 +10,18 @@ import node.childUnderscoreProcessMod.spawn
 import node.{fsMod => fs, readlineMod => readline}
 import node.NodeJS.ErrnoException
 
-trait Writer {
+trait IOTrait {
 
   val taking: Taking
+
+
+  def writeLines(file:String)(
+    implicit executionContext: ExecutionContext): Future[Taker] =
+    writeAFile(file).
+      map(_.map(s=>new Taker(taking))).
+      getOrElse(Future{new Taker(taking)})
+
+
 
   def writeAFile(file:String)=taking.linesOpt.map(
     lines=> {
@@ -75,12 +84,12 @@ trait Writer {
              sectionNum:Int,
              outPath: String)(implicit ctx: ExecutionContext) =
     taking.idOpt.map(id => {
-      val promise = concurrent.Promise[Writer]
+      val promise = concurrent.Promise[IOTrait]
       val html = s"${outPath}/${id}_${index}-frag.html"
       spawn("pandoc", js.Array(file, "-o", html)).on(
         "close",
         (code) => {
-          promise.success(Writer.this)
+          promise.success(IOTrait.this)
           ()
         }
       )

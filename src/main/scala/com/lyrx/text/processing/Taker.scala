@@ -29,7 +29,7 @@ object Taker {
 class Taker(override val taking: Taking)
     extends LinesFromFile
     with Grouping2
-    with Writer
+    with IOTrait
     with Generator
       with Collector {
 
@@ -37,12 +37,6 @@ class Taker(override val taking: Taking)
   new Taker(  taking.copy(filterOpt = Some(f)))
 
 
-
-  def writeLines(file:String)(
-    implicit executionContext: ExecutionContext)=
-    writeAFile(file).
-      map(_.map(s=>Taker.this)).
-      getOrElse(Future{Taker.this})
 
 
 
