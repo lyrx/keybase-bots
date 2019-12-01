@@ -116,6 +116,7 @@ object Main extends Chunker {
       .collectFrom(s"${diary}/ttagebuch.md")
       .map(
         _.title("Sonntag, erster Dezember 2019")
+          .img("images/IMG_1948.jpeg")
           .fromMark("d1")
           .writeToFile(s"mydiary.md"))
 

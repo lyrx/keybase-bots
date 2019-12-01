@@ -16,12 +16,18 @@ trait CollectorFilter extends LinesFromFile {
       new Taker(taking.copy(linesCollectorOpt = Some(lines))))
 
   def title(title:String)=
-    new Taker(taking.copy(linesOpt =
-    Some(
-      taking.linesOpt.getOrElse(Seq())
-      :+ s"# ${title} #"
-    )))
+    takeMarkdown(s"# ${title} #")
 
+  def img(src:String)=
+    takeMarkdown(s"![](${src})")
+
+
+  def takeMarkdown(line:String)=
+    new Taker(taking.copy(linesOpt =
+      Some(
+        taking.linesOpt.getOrElse(Seq())
+          :+ line
+      )))
 
 
 
