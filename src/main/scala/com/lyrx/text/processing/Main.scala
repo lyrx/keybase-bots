@@ -12,18 +12,20 @@ object Main extends Chunker {
 
   implicit val exc = ExecutionContext.global
 
-
-  val resources= "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources"
+  val resources =
+    "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources"
   val creative = s"${resources}/creative"
   val kuendigung = s"${creative}/kuendigung"
-  val koblach =  s"${kuendigung}/koblach"
+  val koblach = s"${kuendigung}/koblach"
+  val ideen = s"${kuendigung}/ideen"
+  val diary = s"${kuendigung}/diary"
+  val pyramids = s"${kuendigung}/pyramids"
 
-  val books= s"${resources}/books"
+  val books = s"${resources}/books"
   val mayRoot = s"${books}/KarlMay"
-  val hegel=s"${books}/GeorgWilhelmFriedrichHegel"
-  val dickens=s"${books}/CharlesDickens"
-  val schiller=s"${books}/FriedrichSchiller"
-
+  val hegel = s"${books}/GeorgWilhelmFriedrichHegel"
+  val dickens = s"${books}/CharlesDickens"
+  val schiller = s"${books}/FriedrichSchiller"
 
   val output = "/Users/alex/output"
   val h: HeaderDetection = (line) => {
@@ -40,51 +42,51 @@ object Main extends Chunker {
     else
       0
   }
-  def karlMayBooks():Seq[Book] = Seq(
-    "amjenseits.md",
-    "durchdiewste.md",
-    "indencordilleren.md",
-    "satanundischariotii.md",
-    "amriodelaplata.md",
-    "durchswildekurdistan.md",
-    "oldsurehandi.md",
-    "satanundischariotiii.md",
-    "amstillenocean.md",
-    "imlandedesmahdii.md",
-    "oldsurehandii.md",
-    "undfriedeauferden.md",
-    "auffremdenpfaden.md",
-    "imlandedesmahdiii.md",
-    "oldsurehandiii.md",
-    "vonbagdadnachstambul.md",
-    "dermirvondschinnistan.md",
-    "imlandedesmahdiiii.md",
-    "orangenunddatteln.md",
-    "weihnacht.md",
-    "dermirvondschinnistani.md",
-    "imreichdessilbernenlweniii.md",
-    "satanundischariotbandi.md",
-    "winnetoui.md",
-    "dermirvondschinnistanii.md",
-    "imreichdessilbernenlweniv.md",
-    "satanundischariotbandii.md",
-    "winnetouii.md",
-    "derschut.md",
-    "imreichedessilbernenlweni.md",
-    "satanundischariotbandiii.md",
-    "winnetouiii.md",
-    "durchdaslandderskipetaren.md",
-    "imreichedessilbernenlwenii.md",
-    "satanundischarioti.md",
-    "winnetouiv.md"
-  ).map(_.stripSuffix(".md")).map(may(_))
+  def karlMayBooks(): Seq[Book] =
+    Seq(
+      "amjenseits.md",
+      "durchdiewste.md",
+      "indencordilleren.md",
+      "satanundischariotii.md",
+      "amriodelaplata.md",
+      "durchswildekurdistan.md",
+      "oldsurehandi.md",
+      "satanundischariotiii.md",
+      "amstillenocean.md",
+      "imlandedesmahdii.md",
+      "oldsurehandii.md",
+      "undfriedeauferden.md",
+      "auffremdenpfaden.md",
+      "imlandedesmahdiii.md",
+      "oldsurehandiii.md",
+      "vonbagdadnachstambul.md",
+      "dermirvondschinnistan.md",
+      "imlandedesmahdiiii.md",
+      "orangenunddatteln.md",
+      "weihnacht.md",
+      "dermirvondschinnistani.md",
+      "imreichdessilbernenlweniii.md",
+      "satanundischariotbandi.md",
+      "winnetoui.md",
+      "dermirvondschinnistanii.md",
+      "imreichdessilbernenlweniv.md",
+      "satanundischariotbandii.md",
+      "winnetouii.md",
+      "derschut.md",
+      "imreichedessilbernenlweni.md",
+      "satanundischariotbandiii.md",
+      "winnetouiii.md",
+      "durchdaslandderskipetaren.md",
+      "imreichedessilbernenlwenii.md",
+      "satanundischarioti.md",
+      "winnetouiv.md"
+    ).map(_.stripSuffix(".md")).map(may(_))
 
   def may(aName: String) = Book.from(aName, mayRoot)
 
   def doDickens() = {
     val d = generate(dickens) _
-    Seq("greatexpectations","littledorrit","olivertwist").
-      map(d(_))
+    Seq("greatexpectations", "littledorrit", "olivertwist").map(d(_))
 
   }
 
@@ -96,37 +98,37 @@ object Main extends Chunker {
     //doDickens()
     //generate(s"${books}/FriedrichSchiller")("aesthetik")
     doKoblach
+    doDiary()
   }
 
-
-  private def doKoblach = {
-    Taker().
-      id("koblach").
-      collectFrom(s"${koblach}/novel.md").
-      map(_.
-        //fromMark("t1").
-      all().
-        writeLines(s"${koblach}/whois.md")
-      )
+  private def doKoblach() = {
+    Taker()
+      .id("koblach")
+      .collectFrom(s"${koblach}/novel.md")
+      .map(_.fromMark("t1").writeLines(s"${koblach}/whois.md"))
   }
+
+  private def doDiary() =
+    Taker()
+      .id("diary")
+      .collectFrom(s"${diary}/ttagebuch.md")
+      .map(
+        _.title("Sonntag, erster Dezember 2019")
+          .fromMark("d1")
+          .writeLines(s"${diary}/mydiary.md"))
+
 
   private def traktatus = {
-    Taker().
-      mdPath(s"${books}/LudwigWittgenstein/tractatus.md").
-      id("traktatus").
-      withFilter(Filters.tractatus).
-      readMD().
-      flatMap(_.filter().mdAndHTML())
+    Taker()
+      .mdPath(s"${books}/LudwigWittgenstein/tractatus.md")
+      .id("traktatus")
+      .withFilter(Filters.tractatus)
+      .readMD()
+      .flatMap(_.filter().mdAndHTML())
   }
 
-  def generate(base:String)(id:String) = Taker().
-    id(id).
-    mdPath(s"${base}/${id}.md").
-    readMD().flatMap(
-    _.mdAndHTML())
-
-
-
+  def generate(base: String)(id: String) =
+    Taker().id(id).mdPath(s"${base}/${id}.md").readMD().flatMap(_.mdAndHTML())
 
   private def chunk(book: Book) =
     book

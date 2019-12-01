@@ -16,8 +16,11 @@ trait CollectorFilter extends LinesFromFile {
       new Taker(taking.copy(linesCollectorOpt = Some(lines))))
 
   def title(title:String)=
-    new Taker(taking.copy(linesCollectorOpt =
-    Some(Seq(s"# ${title} #")))).all()
+    new Taker(taking.copy(linesOpt =
+    Some(
+      taking.linesOpt.getOrElse(Seq())
+      :+ s"# ${title} #"
+    )))
 
 
 
