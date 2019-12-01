@@ -104,24 +104,28 @@ object Main extends Chunker {
   private def doKoblach() = {
     Taker()
       .id("koblach")
-      .withOutPath(s"${output}/kuendigung")
       .collectFrom(s"${koblach}/novel.md")
-      .map(_.fromMark("t1").writeToFile(s"whois.md"))
+      .flatMap(_.fromMark("t1").
+        writeToPath(s"${koblach}/whois.md").
+        flatMap(t=>t.mdAndHTML())
+      )
+
   }
 
   private def doDiary() =
     Taker()
       .id("diary")
-      .withOutPath(s"${output}/diary")
       .collectFrom(s"${diary}/ttagebuch.md")
-      .map(
+      .flatMap(
         _.title("Sonntag, erster Dezember 2019")
           .img(
             "images/IMG_1948.jpeg",
             "Weihnachtsbaum des Bonifatius-Heims"
           )
           .fromMark("d1")
-          .writeToFile(s"mydiary.md"))
+          .writeToPath(s"${diary}/mydiary.md")
+          .flatMap(t=>t.mdAndHTML())
+      )
 
 
   private def traktatus = {
