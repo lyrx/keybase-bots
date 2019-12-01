@@ -30,18 +30,13 @@ class Taker(override val taking: Taking)
     extends LinesFromFile
     with Grouping2
     with Writer
-    with Generator {
+    with Generator
+      with Collector {
 
   def  withFilter(f:Lines=>Lines) =
   new Taker(  taking.copy(filterOpt = Some(f)))
 
-  def filter() = taking.linesOpt.
-    flatMap(lines=>taking.
-      filterOpt.
-      map(filter=>
-      new Taker(taking.copy(
-        linesOpt=Some(
-          filter(lines)))))).getOrElse(Taker.this)
+
 
   def writeLines(file:String)(
     implicit executionContext: ExecutionContext)=
