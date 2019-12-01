@@ -27,19 +27,14 @@ object Taker {
 }
 
 class Taker(override val taking: Taking)
-    extends LinesFromFile
-    with Grouping2
+    extends Grouping2
     with HTML2
     with IOTrait
     with CollectorFilter
     with Markdown {
 
-
-
   def id(s: String) =
     new Taker(taking.copy(idOpt = Some(s)))
-
-
 
   def mdAndHTML()(implicit executionContext: ExecutionContext) =
     toSections()
