@@ -8,6 +8,10 @@ trait Grouping2 {
 
   val taking: Taking
 
+
+  def slize(num: Int) =
+    new Taker(taking.copy(slizeOpt = Some(num)))
+
   def toPars(lines: Lines): ParMap = {
     var counter = 0
     lines.groupBy[Int]((line: String) => {

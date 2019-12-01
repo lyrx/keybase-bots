@@ -31,7 +31,7 @@ class Taker(override val taking: Taking)
     with Grouping2
     with HTML2
     with IOTrait
-    with Collector
+    with CollectorFilter
     with Markdown {
 
   def withFilter(f: Lines => Lines) =
@@ -63,8 +63,6 @@ class Taker(override val taking: Taking)
   def id(s: String) =
     new Taker(taking.copy(idOpt = Some(s)))
 
-  def slize(num: Int) =
-    new Taker(taking.copy(slizeOpt = Some(num)))
 
 
   def mdAndHTML()(implicit executionContext: ExecutionContext) =

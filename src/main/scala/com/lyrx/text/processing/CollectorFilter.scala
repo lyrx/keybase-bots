@@ -4,7 +4,7 @@ import com.lyrx.text.processing.filter.LinesFromFile
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait Collector extends LinesFromFile{
+trait CollectorFilter extends LinesFromFile{
   val taking: Taking
 
   def filter():Taker = taking.linesOpt.
