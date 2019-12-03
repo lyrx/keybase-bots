@@ -95,11 +95,11 @@ object Main extends Chunker {
     //generate(hegel)("phnomenologiedesgeistes")
     //karlMayBooks.map(chunk(_))
     //traktatus
-    //doDickens()
+    doDickens()
     //generate(s"${books}/FriedrichSchiller")("aesthetik")
     //doKoblach
     //doDiary()
-    doHegel()
+    //doHegel()
   }
 
   private def doHegel(){

@@ -41,8 +41,15 @@ trait Grouping2 {
         lineCounter = 0
       }
       counter
-    })
+    }).
+      filter(t => !isEmptyGroup(t._2))
   }
+
+  def isEmptyGroup(lines:Lines):Boolean=(lines.
+    map(_.trim.length).sum <= 0)
+
+
+
 
   def detectHeader(line: String) = {
     val s = line.trim
