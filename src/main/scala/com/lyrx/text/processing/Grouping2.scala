@@ -46,7 +46,7 @@ trait Grouping2 {
   }
 
   def isEmptyGroup(lines:Lines):Boolean=(lines.
-    map(_.trim.length).sum <= 0)
+    find(_.trim.length > 0)).isEmpty
 
 
 

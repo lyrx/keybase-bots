@@ -92,14 +92,14 @@ object Main extends Chunker {
 
   @JSExport
   def initt() = {
-    //generate(hegel)("phnomenologiedesgeistes")
-    //karlMayBooks.map(chunk(_))
-    //traktatus
+
+   // karlMayBooks.map(chunk(_))
+    // traktatus
     doDickens()
-    //generate(s"${books}/FriedrichSchiller")("aesthetik")
-    //doKoblach
-    //doDiary()
-    //doHegel()
+   // generate(s"${books}/FriedrichSchiller")("aesthetik")
+   // doKoblach
+   // doDiary()
+   //  doHegel()
   }
 
   private def doHegel(){
