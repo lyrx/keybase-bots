@@ -13,14 +13,14 @@ trait Philosophie {
   def books:String
   def generate(base: String)(id: String): Future[immutable.Iterable[Taker]]
 
-  private def doHegel(){
+  def doHegel(){
     generate(
       s"${books}/GeorgWilhelmFriedrichHegel")(
       "phnomenologiedesgeistes")
 
   }
 
-  private def traktatus = {
+   def traktatus = {
     Taker()
       .mdPath(s"${books}/LudwigWittgenstein/tractatus.md")
       .id("traktatus")

@@ -11,7 +11,7 @@ trait Diary {
 
   val diary:String = s"${kuendigung}/diary"
 
-  private def doDiary() =
+  def doDiary() =
     Taker()
       .id("diary")
       .collectFrom(s"${diary}/ttagebuch.md")

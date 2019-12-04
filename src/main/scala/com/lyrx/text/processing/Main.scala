@@ -1,7 +1,15 @@
 package com.lyrx.text.processing
 
 import com.lyrx.text.processing.Types.HeaderDetection
-import com.lyrx.text.processing.books.{BooksBase, Diary, DickensBooks, Haesschen, KarlMayBooks, Koblach, Philosophie}
+import com.lyrx.text.processing.books.{
+  BooksBase,
+  Diary,
+  DickensBooks,
+  Haesschen,
+  KarlMayBooks,
+  Koblach,
+  Philosophie
+}
 import com.lyrx.text.processing.filter.Filters
 import typings.node
 import node.{fsMod => fs}
@@ -20,21 +28,18 @@ object Main
     with Koblach
     with Diary {
 
-
   @JSExport
   def initt() = {
 
-    // karlMayBooks.map(chunk(_))
-    // traktatus
-    // doDickens()
-    // generate(s"${books}/FriedrichSchiller")("aesthetik")
-     doKoblach
-    // doDiary()
-    //  doHegel()
-    //haselis()
+    karlMayBooks.map(chunk(_))
+    traktatus
+    doDickens()
+    generate(s"${books}/FriedrichSchiller")("aesthetik")
+    doKoblach
+    doDiary()
+    doHegel()
+    haselis()
 
   }
-
-
 
 }

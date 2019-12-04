@@ -37,18 +37,16 @@ trait BooksBase {
   def generate(base: String)(id: String): Future[immutable.Iterable[Taker]] =
     Taker().id(id).mdPath(s"${base}/${id}.md").readMD().flatMap(_.mdAndHTML())
 
-  private def chunk(book: Book): Future[Future[Unit]] =
+   def chunk(book: Book): Future[Future[Unit]] =
     book
       .withMarkdownSections()
       .flatMap(
-        b => {
-
-          b.writeMarkdownChunks(30)
+        _.writeMarkdownChunks(30)
             .map(
               b2 =>
                 b2.writeHTMLChunks()
                   .map(b3 => println(s"Processed ${b3.context.metaData.name}")))
-        }
+
       )
 
 }
