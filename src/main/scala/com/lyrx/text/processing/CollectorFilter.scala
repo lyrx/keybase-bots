@@ -3,10 +3,22 @@ package com.lyrx.text.processing
 import com.lyrx.text.processing.Types.Lines
 import com.lyrx.text.processing.filter.{Filters, LineFilter, LinesFromFile}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 trait CollectorFilter extends LinesFromFile {
   val taking: Taking
+
+
+
+  def collect(file:String,
+              marks:Seq[String])(implicit executionContext: ExecutionContext)={
+    val collection=collectFrom(s"${file}")
+    marks.foldLeft(collection:Future[Taker])(
+      (f,mark)=>f.map(_.fromMark(mark))
+    )
+  }
+
+
 
   def withFilter(f: Lines => Lines) =
     new Taker(taking.copy(filterOpt = Some(f)))

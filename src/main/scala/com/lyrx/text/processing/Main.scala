@@ -31,14 +31,14 @@ object Main
   @JSExport
   def initt() = {
 
-    karlMayBooks.map(chunk(_))
-    traktatus
-    doDickens()
-    generate(s"${books}/FriedrichSchiller")("aesthetik")
+    //karlMayBooks.map(chunk(_))
+    //traktatus
+    //doDickens()
+    //generate(s"${books}/FriedrichSchiller")("aesthetik")
     doKoblach
-    doDiary()
-    doHegel()
-    haselis()
+    //doDiary()
+    //doHegel()
+    //haselis()
 
   }
 
