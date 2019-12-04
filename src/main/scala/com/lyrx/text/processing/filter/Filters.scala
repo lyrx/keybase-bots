@@ -31,14 +31,17 @@ object Filters {
 
   def MARKDOWN: Lines => Lines = (s) => {
     s.foldLeft(
-        (s, false): (Lines, Boolean)
+        (Seq(), false): (Lines, Boolean)
       )(
         (t, line) => {
-          val omit: Boolean = if (line.startsWith("---")) (!t._2) else t._2
-          (if (omit) t._1 else (t._1 :+ line), omit)
+          val dashes = line.startsWith("---")
+          val omit: Boolean = if (dashes) (!t._2) else t._2
+          (if (dashes || omit) t._1 else (t._1 :+ line),
+            omit)
         }
       )
       ._1
+
 
   }
 

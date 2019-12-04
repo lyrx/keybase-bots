@@ -20,6 +20,7 @@ object Main extends Chunker {
   val ideen = s"${kuendigung}/ideen"
   val diary = s"${kuendigung}/diary"
   val pyramids = s"${kuendigung}/pyramids"
+  val haesschen = s"${resources}/briefe/haesschenbriefe"
 
   val books = s"${resources}/books"
   val mayRoot = s"${books}/KarlMay"
@@ -90,17 +91,49 @@ object Main extends Chunker {
 
   }
 
+
+
+
   @JSExport
   def initt() = {
 
    // karlMayBooks.map(chunk(_))
     // traktatus
-    doDickens()
+  // doDickens()
    // generate(s"${books}/FriedrichSchiller")("aesthetik")
    // doKoblach
    // doDiary()
    //  doHegel()
+    haselis()
+
   }
+
+
+  def haselis()= {
+    val t = Taker().id("haesschen")
+
+    (1 to 3).
+      foldLeft(Future{t}:Future[Taker])(
+     (f,i)=>doHaesschen(f,i)
+      )
+      .flatMap(_.
+        writeToPath(s"${haesschen}/haesschenbriefe.md"))
+  }
+
+
+
+
+
+  def doHaesschen(aFutureTaker:Future[Taker],num:Int) = aFutureTaker.
+    flatMap(aTaker=> aTaker.
+    collectFrom(
+    s"${haesschen}/elias${num}.md"
+  ).map(_.
+    title(s"Brief ${num}").
+    applyFilter(Filters.MARKDOWN)
+  ))
+
+
 
   private def doHegel(){
     generate(

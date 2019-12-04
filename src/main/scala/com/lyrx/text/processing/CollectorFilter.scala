@@ -35,13 +35,13 @@ trait CollectorFilter extends LinesFromFile {
 
 
   def fromMark(mark: String): Taker =
-    fromFilter(
+    applyFilter(
           Filters.filterMarker(mark) _)
 
   def all(): Taker =
-    fromFilter(Filters.ALL)
+    applyFilter(Filters.ALL)
 
-  def fromFilter(f: Lines=>Lines): Taker =
+  def applyFilter(f: Lines=>Lines): Taker =
     new Taker(
       taking.copy(
         filterOpt = Some(f))).
