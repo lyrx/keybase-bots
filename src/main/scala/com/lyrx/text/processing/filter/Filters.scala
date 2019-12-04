@@ -29,7 +29,7 @@ object Filters {
       })
       .flatten
 
-  def MARKDOWN: Lines => Lines = (s) => {
+  def MARKDOWN: Lines => Lines = (s) => TRIMLINES(
     s.foldLeft(
         (Seq(), false): (Lines, Boolean)
       )(
@@ -40,10 +40,15 @@ object Filters {
             omit)
         }
       )
-      ._1
+      ._1)
 
 
-  }
+  def TRIMLINES:Lines => Lines = (s) => s.
+      dropWhile(_.trim.length == 0).
+      reverse.
+      dropWhile(_.trim.length == 0).
+      reverse
+
 
   def ALL: Lines => Lines = (s) => s
 

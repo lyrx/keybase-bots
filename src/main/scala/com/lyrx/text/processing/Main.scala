@@ -112,12 +112,15 @@ object Main extends Chunker {
   def haselis()= {
     val t = Taker().id("haesschen")
 
-    (1 to 3).
+    (1 to 20).
       foldLeft(Future{t}:Future[Taker])(
      (f,i)=>doHaesschen(f,i)
       )
       .flatMap(_.
         writeToPath(s"${haesschen}/haesschenbriefe.md"))
+      .flatMap(
+        _.mdAndHTML()
+      )
   }
 
 
