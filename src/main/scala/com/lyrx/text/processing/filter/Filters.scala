@@ -57,11 +57,24 @@ object Filters {
 
   def ALL: MAPPING = (lines) => lines
 
-  def TRIMLINES:Lines => Lines = (s) => s.
+  def TRIMLINES:MAPPING = (s) => s.
       dropWhile(_.trim.length == 0).
       reverse.
       dropWhile(_.trim.length == 0).
       reverse
+
+  val FOLDLINES:MAPPING = (lines:Lines) =>lines.
+  foldLeft(Seq():Lines)((llines:Lines,line:String)=>
+    if(line.trim.length == 0)
+      llines :+ line
+    else {
+      val concatOpt = llines.lastOption.map(lastLine=>lastLine +" " + line)
+      val r = concatOpt.map(concat=> llines.dropRight(1) :+ concat).
+        getOrElse(llines :+ line)
+      r
+    }
+  )
+
 
 
   def IMG:MAPPING = (s) => s.map(
