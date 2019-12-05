@@ -18,6 +18,13 @@ trait CollectorFilter extends LinesFromFile {
     )
   }
 
+  def collectMarks(file:String,prefix:String)(implicit executionContext: ExecutionContext)=collect(
+    file,
+    (1 to 40).map(num=>{
+      s"${prefix}${num}"
+    })
+  )
+
 
 
   def withFilter(f: Lines => Lines) =
