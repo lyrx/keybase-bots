@@ -14,7 +14,7 @@ trait Diary {
   def doDiary() =
     Taker()
       .id("diary")
-      .collectFrom(s"${diary}/ttagebuch.md")
+      .collectMarkdownFrom(s"${diary}/ttagebuch.md")
       .flatMap(
         _.title("Sonntag, erster Dezember 2019")
           .img(

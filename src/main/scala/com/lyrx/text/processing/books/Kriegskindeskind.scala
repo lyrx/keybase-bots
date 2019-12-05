@@ -16,7 +16,7 @@ trait Kriegskindeskind extends  BooksBase {
    def krieg() = {
     Taker()
       .id("kriegskindeskind")
-      .collectMarks(s"${kind}/Kriegskindeskind.md","krd").
+      .collectMarkdownMarks(s"${kind}/Kriegskindeskind.md","krd").
       flatMap(_.writeToPath(s"${kind}/generated.md")).
       flatMap(_.mdAndHTML())
 

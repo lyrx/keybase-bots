@@ -4,6 +4,7 @@ import com.lyrx.text.processing.Types.Lines
 
 object Filters {
 
+  type MAPPING = Lines => Lines
   val R1 = """:\s+(.*)""".r
   val R11 = """\s+(.*)""".r
   val R2 = """\[(\d+)\].*""".r
@@ -12,6 +13,8 @@ object Filters {
   val R5 = """\[(\d+\.\d\d\d)\].*""".r
   val R6 = """\[(\d+\.\d\d\d\d)\].*""".r
   val R7 = """\[(\d+\.\d\d\d\d\d)\].*""".r
+
+  val IMGR = """\s*img\s+([\w\d.]+).*""".r
 
   val tractatus: Lines => Lines = (lines: Seq[String]) =>
     lines
@@ -29,19 +32,30 @@ object Filters {
       })
       .flatten
 
-  def MARKDOWN: Lines => Lines = (s) => TRIMLINES(
-    s.foldLeft(
-        (Seq(), false): (Lines, Boolean)
-      )(
-        (t, line) => {
-          val dashes = line.startsWith("---")
-          val omit: Boolean = if (dashes) (!t._2) else t._2
-          (if (dashes || omit) t._1 else (t._1 :+ line),
-            omit)
-        }
-      )
-      ._1)
+  def MARKDOWN: MAPPING = concatFilters(Seq(
+    MDSKIPDASHES,
+    TRIMLINES,
+    IMG))
 
+  def MDSKIPDASHES: Lines => Lines = (s) =>
+    s.foldLeft(
+      (Seq(), false): (Lines, Boolean)
+    )(
+      (t, line) => {
+        val dashes = line.startsWith("---")
+        val omit: Boolean = if (dashes) (!t._2) else t._2
+        (if (dashes || omit) t._1 else (t._1 :+ line),
+          omit)
+      }
+    )._1
+
+
+
+
+  def concatFilters(filters:Seq[MAPPING]) = (lines:Lines) => filters.
+  foldLeft(lines:Lines)((in:Lines,f:MAPPING) =>f(in))
+
+  def ALL: MAPPING = (lines) => lines
 
   def TRIMLINES:Lines => Lines = (s) => s.
       dropWhile(_.trim.length == 0).
@@ -50,7 +64,12 @@ object Filters {
       reverse
 
 
-  def ALL: Lines => Lines = (s) => s
+  def IMG:MAPPING = (s) => s.map(
+    line => line match{
+      case IMGR(name) => s"![](images/${name})"
+      case _ => line
+    }
+  )
 
   def filterMarker(marker: String)(in: Seq[String]): Seq[String] =
     in.dropWhile(!_.matches(marker)).drop(1).takeWhile(!_.matches(marker))

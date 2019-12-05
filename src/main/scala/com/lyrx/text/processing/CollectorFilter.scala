@@ -10,15 +10,15 @@ trait CollectorFilter extends LinesFromFile {
 
 
 
-  def collect(file:String,
+  def collectMarkdown(file:String,
               marks:Seq[String])(implicit executionContext: ExecutionContext)={
-    val collection=collectFrom(s"${file}")
+    val collection=collectMarkdownFrom(s"${file}")
     marks.foldLeft(collection:Future[Taker])(
       (f,mark)=>f.map(_.fromMark(mark))
     )
   }
 
-  def collectMarks(file:String,prefix:String)(implicit executionContext: ExecutionContext)=collect(
+  def collectMarkdownMarks(file:String,prefix:String)(implicit executionContext: ExecutionContext)=collectMarkdown(
     file,
     (1 to 40).map(num=>{
       s"${prefix}${num}"
@@ -30,9 +30,9 @@ trait CollectorFilter extends LinesFromFile {
   def withFilter(f: Lines => Lines) =
     new Taker(taking.copy(filterOpt = Some(f)))
 
-  def collectFrom(s: String)(implicit executionContext: ExecutionContext) =
+  def collectMarkdownFrom(s: String)(implicit executionContext: ExecutionContext) =
     fromFile(s).map(lines =>
-      new Taker(taking.copy(linesCollectorOpt = Some(lines))))
+      new Taker(taking.copy(linesCollectorOpt = Some(Filters.MARKDOWN(lines)))))
 
   def title(title:String)=
     takeMarkdown(Seq(s"# ${title} #"))

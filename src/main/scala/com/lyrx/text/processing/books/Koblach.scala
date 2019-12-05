@@ -16,7 +16,7 @@ trait Koblach {
    def doKoblach() = {
     Taker()
       .id("koblach")
-      .collectMarks(s"${koblach}/novel.md","t").
+      .collectMarkdownMarks(s"${koblach}/novel.md","t").
       flatMap(_.writeToPath(s"${koblach}/whois.md")).
       flatMap(_.mdAndHTML())
 

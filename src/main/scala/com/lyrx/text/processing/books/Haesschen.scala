@@ -33,11 +33,10 @@ trait Haesschen {
 
   def doHaesschen(aFutureTaker:Future[Taker],num:Int) = aFutureTaker.
     flatMap(aTaker=> aTaker.
-      collectFrom(
+      collectMarkdownFrom(
         s"${haesschen}/elias${num}.md"
       ).map(_.
-      title(s"Brief ${num}").
-      applyFilter(Filters.MARKDOWN)
+      title(s"Brief ${num}")
     ))
 
 }
