@@ -17,7 +17,7 @@ trait Koblach {
     Taker()
       .id("koblach")
       .collect(s"${koblach}/novel.md",Seq(
-        "t1","t2"
+        "t2"
       )).
       flatMap(_.writeToPath(s"${koblach}/whois.md")).
       flatMap(_.mdAndHTML())
