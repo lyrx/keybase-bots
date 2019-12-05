@@ -8,7 +8,8 @@ import com.lyrx.text.processing.books.{
   Haesschen,
   KarlMayBooks,
   Koblach,
-  Philosophie
+  Philosophie,
+Kriegskindeskind
 }
 import com.lyrx.text.processing.filter.Filters
 import typings.node
@@ -26,7 +27,8 @@ object Main
     with Haesschen
     with Philosophie
     with Koblach
-    with Diary {
+    with Diary
+    with Kriegskindeskind {
 
   @JSExport
   def initt() = {
@@ -36,6 +38,7 @@ object Main
     //doDickens()
     //generate(s"${books}/FriedrichSchiller")("aesthetik")
     doKoblach
+    krieg()
     //doDiary()
     //doHegel()
     //haselis()
