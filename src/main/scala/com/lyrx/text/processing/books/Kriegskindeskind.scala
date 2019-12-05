@@ -17,7 +17,7 @@ trait Kriegskindeskind extends  BooksBase {
     Taker()
       .id("kriegskindeskind")
       .collect(s"${kind}/Kriegskindeskind.md",Seq(
-        "d1"
+        "krd1"
       )).
       flatMap(_.writeToPath(s"${kind}/generated.md")).
       flatMap(_.mdAndHTML())
