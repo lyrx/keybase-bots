@@ -34,7 +34,6 @@ object Filters {
 
   def MARKDOWN: MAPPING = concatFilters(Seq(
     MDSKIPDASHES,
-    TRIMLINES,
     IMG))
 
   def MDSKIPDASHES: Lines => Lines = (s) =>

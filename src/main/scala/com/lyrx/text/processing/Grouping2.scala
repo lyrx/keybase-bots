@@ -1,12 +1,15 @@
 package com.lyrx.text.processing
 
 import com.lyrx.text.processing.Types._
+import com.lyrx.text.processing.filter.Filters
 
 import scala.concurrent.ExecutionContext
 
 trait Grouping2 {
 
   val taking: Taking
+
+
 
 
   def slize(num: Int) =
