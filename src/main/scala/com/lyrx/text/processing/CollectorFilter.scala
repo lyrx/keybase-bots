@@ -9,7 +9,7 @@ trait CollectorFilter extends LinesFromFile {
   val taking: Taking
 
 
-  def trimLines()=new Taker(taking.
+  def foldLines()=new Taker(taking.
     copy(linesOpt = taking.linesOpt.map(
       lines => {
         Filters.FOLDLINES(lines)
@@ -23,7 +23,7 @@ trait CollectorFilter extends LinesFromFile {
     val collection=collectMarkdownFrom(s"${file}")
     marks.foldLeft(collection:Future[Taker])(
       (f,mark)=>f.map(_.fromMark(mark))
-    ).map(_.trimLines())
+    ).map(_.foldLines())
   }
 
   def collectMarkdownMarks(file:String,prefix:String)(implicit executionContext: ExecutionContext)=
