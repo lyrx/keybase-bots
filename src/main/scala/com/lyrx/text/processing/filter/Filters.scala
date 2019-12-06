@@ -67,7 +67,10 @@ object Filters {
     if(line.trim.length == 0)
       llines ++ Seq(line,line)
     else {
-      val concatOpt = llines.lastOption.map(lastLine=>lastLine +" " + line)
+      val concatOpt = llines.lastOption.map(lastLine=>(
+        lastLine +
+          (if(lastLine.trim.length>0) " " else "") +
+          line))
       val r = concatOpt.map(concat=> llines.dropRight(1) :+ concat).
         getOrElse(llines :+ line)
       r

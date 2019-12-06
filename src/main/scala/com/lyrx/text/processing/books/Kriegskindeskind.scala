@@ -13,14 +13,15 @@ trait Kriegskindeskind extends  BooksBase {
 
 
 
-   def krieg() = {
+   def krieg() =
     Taker()
       .id("kriegskindeskind")
-      .collectMarkdownMarks(s"${kind}/Kriegskindeskind.md","krd").
+      .collectMarkdownMarks(s"${kind}/Kriegskindeskind.md","krd")
+      .flatMap(_.collectMarkdownMarks(s"${kind}/Kriegskindeskind.groovy","gr")).
       flatMap(_.writeToPath(s"${kind}/generated.md")).
-      flatMap(_.mdAndHTML())
+        flatMap(_.mdAndHTML())
 
-  }
+
 
 
 }
