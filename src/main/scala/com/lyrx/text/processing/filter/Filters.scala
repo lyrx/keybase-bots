@@ -65,7 +65,7 @@ object Filters {
   val FOLDLINES:MAPPING = (lines:Lines) =>lines.
   foldLeft(Seq():Lines)((llines:Lines,line:String)=>
     if(line.trim.length == 0)
-      llines :+ line
+      llines ++ Seq(line,line)
     else {
       val concatOpt = llines.lastOption.map(lastLine=>lastLine +" " + line)
       val r = concatOpt.map(concat=> llines.dropRight(1) :+ concat).

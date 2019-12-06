@@ -11,7 +11,9 @@ trait CollectorFilter extends LinesFromFile {
 
   def trimLines()=new Taker(taking.
     copy(linesOpt = taking.linesOpt.map(
-      Filters.TRIMLINES)
+      lines => {
+        Filters.FOLDLINES(lines)
+      })
     ))
 
 
@@ -24,7 +26,8 @@ trait CollectorFilter extends LinesFromFile {
     ).map(_.trimLines())
   }
 
-  def collectMarkdownMarks(file:String,prefix:String)(implicit executionContext: ExecutionContext)=collectMarkdown(
+  def collectMarkdownMarks(file:String,prefix:String)(implicit executionContext: ExecutionContext)=
+    collectMarkdown(
     file,
     (1 to 40).map(num=>{
       s"${prefix}${num}"
