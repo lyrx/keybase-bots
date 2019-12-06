@@ -32,80 +32,70 @@ object Filters {
       })
       .flatten
 
-  def MARKDOWN: MAPPING = concatFilters(
-    MDSKIPDASHES,
-    IMG)
+  def MARKDOWN: MAPPING = concatFilters(MDSKIPDASHES, IMG)
 
-  def MDSKIPDASHES: Lines => Lines = (s) =>
-    s.foldLeft(
-      (Seq(), false): (Lines, Boolean)
-    )(
-      (t, line) => {
-        val dashes = line.startsWith("---")
-        val omit: Boolean = if (dashes) (!t._2) else t._2
-        (if (dashes || omit) t._1 else (t._1 :+ line),
-          omit)
-      }
-    )._1
+  def MDSKIPDASHES: Lines => Lines =
+    (s) =>
+      s.foldLeft(
+          (Seq(), false): (Lines, Boolean)
+        )(
+          (t, line) => {
+            val dashes = line.startsWith("---")
+            val omit: Boolean = if (dashes) (!t._2) else t._2
+            (if (dashes || omit) t._1 else (t._1 :+ line), omit)
+          }
+        )
+        ._1
 
-
-
-
-  def concatFilters(filter:MAPPING *) = (lines:Lines) => filter.
-  foldLeft(lines:Lines)((in:Lines,f:MAPPING) =>f(in))
+  def concatFilters(filters: MAPPING*) =
+    (lines: Lines) =>
+      filters.foldLeft(lines: Lines)((in: Lines, f: MAPPING) => f(in))
 
   def ALL: MAPPING = (lines) => lines
 
-  def TRIMLINES:MAPPING = (s) => s.
-      dropWhile(_.trim.length == 0).
-      reverse.
-      dropWhile(_.trim.length == 0).
-      reverse
+  def TRIMLINES: MAPPING = //chop unneeded empty lines in beginning and end
+    (s) =>
+      s.dropWhile(_.trim.length == 0)
+        .reverse
+        .dropWhile(_.trim.length == 0)
+        .reverse
 
-  def REDUCE:MAPPING = (s) => s.
-  foldLeft(Seq():Lines)((in:Lines,line:String)=>{
-    val lastEmpty:Boolean = in.lastOption.map(_.trim.length() ==  0).getOrElse(false)
-    if(lastEmpty && line.trim.length == 0)
-      in
-    else
-    in:+line
-  })
+  def REDUCE: MAPPING = //remove redundant empty lines
+    (s) =>
+      s.foldLeft(Seq(): Lines)((in: Lines, line: String) => {
+        val lastEmpty: Boolean =
+          in.lastOption.map(_.trim.length() == 0).getOrElse(false)
+        if (lastEmpty && line.trim.length == 0)
+          in
+        else
+          in :+ line
+      })
 
+  val FOLDLINES: MAPPING = (lines: Lines) => // one line per paragraph
+    lines.foldLeft(Seq(): Lines)((llines: Lines, line: String) =>
+      if (line.trim.length == 0) {
+        (llines ++ Seq(line, line))
+      } else {
+        val concatOpt = llines.lastOption.map(
+          lastLine =>
+            (lastLine +
+              (if (lastLine.trim.length > 0) " " else "") +
+              line))
+        val r = concatOpt
+          .map(concat => llines.dropRight(1) :+ concat)
+          .getOrElse(llines :+ line)
+        r
+    })
 
-
-
-
-
-  val FOLDLINES:MAPPING = (lines:Lines) =>lines.
-  foldLeft(Seq():Lines)((llines:Lines,line:String)=>
-    if(line.trim.length == 0) {
-      /*
-      val lastEmpty:Boolean = llines.lastOption.map(_.trim.length() > 0).getOrElse(true)
-      if(lastEmpty)
-        llines
-      else
-
-       */
-        (llines ++ Seq(line,line))
-    } else {
-      val concatOpt = llines.lastOption.map(lastLine=>(
-        lastLine +
-          (if(lastLine.trim.length>0) " " else "") +
-          line))
-      val r = concatOpt.map(concat=> llines.dropRight(1) :+ concat).
-        getOrElse(llines :+ line)
-      r
-    }
-  )
-
-
-
-  def IMG:MAPPING = (s) => s.map(
-    line => line match{
-      case IMGR(name) => s"![](images/${name})"
-      case _ => line
-    }
-  )
+  def IMG: MAPPING =
+    (s) =>
+      s.map(
+        line =>
+          line match {
+            case IMGR(name) => s"![](images/${name})"
+            case _          => line
+        }
+    )
 
   def filterMarker(marker: String)(in: Seq[String]): Seq[String] =
     in.dropWhile(!_.matches(marker)).drop(1).takeWhile(!_.matches(marker))

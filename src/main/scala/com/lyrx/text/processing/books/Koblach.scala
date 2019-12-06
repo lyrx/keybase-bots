@@ -16,7 +16,7 @@ trait Koblach extends BooksBase {
       .id("koblach")
       .collectMarkdownMarks(s"${koblach}/novel.md", "t")
       .flatMap(_.collectMarkdownMarks(s"${kind}/Kriegskindeskind.groovy", "gr"))
-      .flatMap(_.writeToPath(s"${koblach}/whois.md"))
+      .flatMap(_.writeToPath(s"${koblach}/generated.md"))
       .flatMap(_.mdAndHTML())
 
   }
