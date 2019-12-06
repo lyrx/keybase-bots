@@ -9,6 +9,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait BooksBase {
   val output = "/Users/alex/output"
 
+
   implicit val exc = ExecutionContext.global
   val resources =
     "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources"
@@ -18,6 +19,8 @@ trait BooksBase {
   val ideen = s"${kuendigung}/ideen"
   val pyramids = s"${kuendigung}/pyramids"
   val books = s"${resources}/books"
+  val kind = s"${creative}/derjunge"
+
 
   val h: HeaderDetection = (line) => {
     val s = line.trim
