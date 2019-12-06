@@ -10,12 +10,17 @@ trait Koblach extends BooksBase {
 
 
   val koblach = s"${kuendigung}/koblach"
+  val novel = s"${koblach}/novel.md"
 
   def doKoblach() = {
     Taker()
       .id("koblach")
-      .collectMarkdownMarks(s"${koblach}/novel.md", "t")
+
+      .collectMarkdownMarks(s"${novel}", "t")
       .flatMap(_.collectMarkdownMarks(s"${kind}/Kriegskindeskind.groovy", "gr"))
+      .flatMap(_.collectMarkdownMarks(s"${novel}", "sss"))
+
+      
       .flatMap(_.writeToPath(s"${koblach}/generated.md"))
       .flatMap(_.mdAndHTML())
 

@@ -4,6 +4,8 @@ import com.lyrx.text.processing.Types.Lines
 import com.lyrx.text.processing.filter.{Filters, LineFilter, LinesFromFile}
 
 import scala.concurrent.{ExecutionContext, Future}
+import Filters._
+
 
 trait CollectorFilter extends LinesFromFile {
   val taking: Taking
@@ -11,15 +13,7 @@ trait CollectorFilter extends LinesFromFile {
 
   def beautifyLines()=new Taker(taking.
     copy(linesOpt = taking.linesOpt.map(
-      lines => {
-        Filters.concatFilters(
-          Filters.FOLDLINES,
-          Filters.TRIMLINES,
-          Filters.REDUCE
-        )(
-          lines)
-      })
-    ))
+      lines => (FOLDLINES -> TRIMLINES -> REDUCE)(lines))))
 
 
 
