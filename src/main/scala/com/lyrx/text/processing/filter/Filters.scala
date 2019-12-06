@@ -32,9 +32,9 @@ object Filters {
       })
       .flatten
 
-  def MARKDOWN: MAPPING = concatFilters(Seq(
+  def MARKDOWN: MAPPING = concatFilters(
     MDSKIPDASHES,
-    IMG))
+    IMG)
 
   def MDSKIPDASHES: Lines => Lines = (s) =>
     s.foldLeft(
@@ -51,7 +51,7 @@ object Filters {
 
 
 
-  def concatFilters(filters:Seq[MAPPING]) = (lines:Lines) => filters.
+  def concatFilters(filter:MAPPING *) = (lines:Lines) => filter.
   foldLeft(lines:Lines)((in:Lines,f:MAPPING) =>f(in))
 
   def ALL: MAPPING = (lines) => lines
@@ -62,11 +62,32 @@ object Filters {
       dropWhile(_.trim.length == 0).
       reverse
 
+  def REDUCE:MAPPING = (s) => s.
+  foldLeft(Seq():Lines)((in:Lines,line:String)=>{
+    val lastEmpty:Boolean = in.lastOption.map(_.trim.length() ==  0).getOrElse(false)
+    if(lastEmpty && line.trim.length == 0)
+      in
+    else
+    in:+line
+  })
+
+
+
+
+
+
   val FOLDLINES:MAPPING = (lines:Lines) =>lines.
   foldLeft(Seq():Lines)((llines:Lines,line:String)=>
-    if(line.trim.length == 0)
-      llines ++ Seq(line,line)
-    else {
+    if(line.trim.length == 0) {
+      /*
+      val lastEmpty:Boolean = llines.lastOption.map(_.trim.length() > 0).getOrElse(true)
+      if(lastEmpty)
+        llines
+      else
+
+       */
+        (llines ++ Seq(line,line))
+    } else {
       val concatOpt = llines.lastOption.map(lastLine=>(
         lastLine +
           (if(lastLine.trim.length>0) " " else "") +
