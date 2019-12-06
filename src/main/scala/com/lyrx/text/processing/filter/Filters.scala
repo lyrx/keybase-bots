@@ -16,6 +16,13 @@ object Filters {
 
   val IMGR = """\s*img\s+([\w\d.]+).*""".r
 
+
+  implicit class PimmpedMapping(m:MAPPING){
+
+    def ->(other:MAPPING) = concatFilters(m,other)
+
+  }
+
   val tractatus: Lines => Lines = (lines: Seq[String]) =>
     lines
       .map(line =>
