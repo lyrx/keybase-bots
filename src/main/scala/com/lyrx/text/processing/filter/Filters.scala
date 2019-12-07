@@ -16,10 +16,9 @@ object Filters {
 
   val IMGR = """\s*img\s+([\w\d.]+).*""".r
 
+  implicit class PimmpedMapping(m: MAPPING) {
 
-  implicit class PimmpedMapping(m:MAPPING){
-
-    def ->(other:MAPPING) = concatFilters(m,other)
+    def ->(other: MAPPING) = concatFilters(m, other)
 
   }
 
@@ -78,21 +77,30 @@ object Filters {
           in :+ line
       })
 
-  val FOLDLINES: MAPPING = (lines: Lines) => // one line per paragraph
+  val FOLDLINES: MAPPING = (lines: Lines) => { // one line per paragraph
+
+    def isTextLine(s: String) = (
+      !s.startsWith("\t") &&
+        !s.startsWith("     ")
+    )
     lines.foldLeft(Seq(): Lines)((llines: Lines, line: String) =>
       if (line.trim.length == 0) {
         (llines ++ Seq(line, line))
       } else {
-        val concatOpt = llines.lastOption.map(
-          lastLine =>
-            (lastLine +
-              (if (lastLine.trim.length > 0) " " else "") +
-              line))
-        val r = concatOpt
-          .map(concat => llines.dropRight(1) :+ concat)
-          .getOrElse(llines :+ line)
-        r
+        if (isTextLine(line)) {
+          val concatOpt = llines.lastOption.map(
+            lastLine =>
+              (lastLine +
+                (if (lastLine.trim.length > 0) " " else "") +
+                line))
+          concatOpt
+            .map(concat => llines.dropRight(1) :+ concat)
+            .getOrElse(llines :+ line)
+        } else
+          llines :+ line
+
     })
+  }
 
   def IMG: MAPPING =
     (s) =>
