@@ -1,22 +1,7 @@
 package com.lyrx.text.processing
 
-import com.lyrx.text.processing.Types.HeaderDetection
-import com.lyrx.text.processing.books.{
-  BooksBase,
-  Diary,
-  DickensBooks,
-  Haesschen,
-  KarlMayBooks,
-  Koblach,
-  Philosophie,
-Kriegskindeskind
-}
-import com.lyrx.text.processing.filter.Filters
-import typings.node
-import node.{fsMod => fs}
+import com.lyrx.text.processing.books._
 
-import scala.collection.immutable
-import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 @JSExportTopLevel("Chunker")
 object Main

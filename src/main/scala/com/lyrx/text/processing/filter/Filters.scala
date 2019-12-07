@@ -81,7 +81,8 @@ object Filters {
 
     def isTextLine(s: String) = (
       !s.startsWith("\t") &&
-        !s.startsWith("     ")
+        !s.startsWith("     ") &&
+        !s.trim.startsWith("#")
     )
     lines.foldLeft(Seq(): Lines)((llines: Lines, line: String) =>
       if (line.trim.length == 0) {
