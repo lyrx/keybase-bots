@@ -1,4 +1,7 @@
+OUTPUT=$(HOME)/output
 
+ipfs:  allchunk
+	@source ~/ipfs/.india ; ipfs  add -r  $(OUTPUT) 
 all:
 	@source ~/env.sh; sbt fastOptJS
 loop:
