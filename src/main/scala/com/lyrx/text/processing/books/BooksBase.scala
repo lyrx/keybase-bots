@@ -22,6 +22,23 @@ trait BooksBase {
   val kind = s"${creative}/derjunge"
 
 
+
+  implicit class FutureTaker(taker:Future[Taker]){
+
+    def col(file:String,prefix:String)(implicit aroot:String)=
+      taker.flatMap(_.
+        collectMarkdownMarks(
+          if(file.startsWith("/"))
+            s"${file}"
+          else
+            s"${aroot}/${file}"
+          ,
+          prefix
+        ))
+  }
+
+
+
   val h: HeaderDetection = (line) => {
     val s = line.trim
 
