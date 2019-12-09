@@ -25,6 +25,8 @@ trait CollectKoblach extends BooksBase  {
     .col(
         s"attic2/ki2i.md",
         "kii")
-    .allFrom("attic2/identity.md")
+    .col(
+      "attic2/identity.md",
+    "sss")
 
 }

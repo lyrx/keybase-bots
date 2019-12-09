@@ -22,7 +22,7 @@ trait CollectorFilter extends LinesFromFile {
   def withPrefix(p: String) =
     new Taker(
       taking.copy(
-        linesOpt = taking.linesOpt.map(lines => s"${p}" +: lines)
+        linesCollectorOpt = taking.linesCollectorOpt.map(lines => s"${p}" +: lines)
       ))
 
   def collectMarkdown(file: String, marks: Seq[String], prefix: Boolean)(
@@ -32,7 +32,7 @@ trait CollectorFilter extends LinesFromFile {
       .foldLeft(collection: Future[Taker])(
         (f, mark) => f.map(_.fromMark(mark, file, prefix))
       )
-      .map(_.beautifyLines())
+
   }
 
   def collectMarkdownMarks(file: String, prefix: String)(
@@ -48,16 +48,14 @@ trait CollectorFilter extends LinesFromFile {
 
   def allFrom(file: String)(implicit executionContext: ExecutionContext,
                             withPrefix: Boolean) =
-    new Taker(taking.copy(mdInputPathOpt = Some(file)))
-      .readMD()
-      .map(_.withMarkdownPreprocess())
-      .map(_.beautifyLines())
+    collectMarkdownFrom(file)
       .map(
         t =>
           if (withPrefix)
             t.withPrefix(s"[[${file}]]")
           else
-          t)
+          t).
+      map(_.all())
 
   def withFilter(f: Lines => Lines) =
     new Taker(taking.copy(filterOpt = Some(f)))

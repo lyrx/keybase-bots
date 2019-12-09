@@ -14,7 +14,9 @@ trait Koblach extends BooksBase with CollectKoblach {
 
   def doKoblach() =
     collect()
-      .flatMap(_.writeToPath(s"${aroot}/generated.md"))
+      .flatMap(_.
+        beautifyLines().
+        writeToPath(s"${aroot}/generated.md"))
       .flatMap(_.mdAndHTML())
 
 }
