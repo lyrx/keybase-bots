@@ -8,7 +8,6 @@ trait Koblach extends BooksBase with CollectKoblach {
 
   implicit val aroot: String = s"${kuendigung}/koblach"
 
-  override val novel = s"${aroot}/novel.md"
   override val taker: Taker = Taker()
     .id("koblach")
 
