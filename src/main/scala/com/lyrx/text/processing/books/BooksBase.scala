@@ -25,6 +25,10 @@ trait BooksBase {
 
   implicit class FutureTaker(taker:Future[Taker]){
 
+    def title(s:String) = taker.map(
+      _.title(s)
+    )
+
     def col(file:String,prefix:String)(
       implicit aroot:String,
       withPrefix:Boolean
@@ -38,6 +42,19 @@ trait BooksBase {
           ,
           prefix
         ))
+
+
+    def allFrom(file:String)(
+      implicit aroot:String,hasPrefix:Boolean
+    )=taker.flatMap(t=>t.allFrom(
+      if(file.startsWith("/"))
+        s"${file}"
+      else
+        s"${aroot}/${file}"
+    ))
+
+
+
   }
 
 

@@ -13,25 +13,51 @@ trait CollectorFilter extends LinesFromFile {
     new Taker(taking.copy(linesOpt = taking.linesOpt.map(lines =>
       (FOLDLINES -> TRIMLINES -> REDUCE)(lines))))
 
+  def withMarkdownPreprocess() =
+    new Taker(
+      taking.copy(
+        linesOpt = taking.linesOpt.map(MARKDOWN(_))
+      ))
 
-  def collectMarkdown(file: String, marks: Seq[String],prefix:Boolean)(
+  def withPrefix(p: String) =
+    new Taker(
+      taking.copy(
+        linesOpt = taking.linesOpt.map(lines => s"${p}" +: lines)
+      ))
+
+  def collectMarkdown(file: String, marks: Seq[String], prefix: Boolean)(
       implicit executionContext: ExecutionContext) = {
     val collection: Future[Taker] = collectMarkdownFrom(s"${file}")
     marks
       .foldLeft(collection: Future[Taker])(
-        (f, mark) => f.map(_.fromMark(mark,file,prefix))
+        (f, mark) => f.map(_.fromMark(mark, file, prefix))
       )
       .map(_.beautifyLines())
   }
 
   def collectMarkdownMarks(file: String, prefix: String)(
-      implicit executionContext: ExecutionContext, withPrefix:Boolean) =
+      implicit executionContext: ExecutionContext,
+      withPrefix: Boolean) =
     collectMarkdown(
       file,
       (1 to 40).map(num => {
         s"${prefix}${num}"
-      }),withPrefix
+      }),
+      withPrefix
     )
+
+  def allFrom(file: String)(implicit executionContext: ExecutionContext,
+                            withPrefix: Boolean) =
+    new Taker(taking.copy(mdInputPathOpt = Some(file)))
+      .readMD()
+      .map(_.withMarkdownPreprocess())
+      .map(_.beautifyLines())
+      .map(
+        t =>
+          if (withPrefix)
+            t.withPrefix(s"[[${file}]]")
+          else
+          t)
 
   def withFilter(f: Lines => Lines) =
     new Taker(taking.copy(filterOpt = Some(f)))
@@ -39,7 +65,7 @@ trait CollectorFilter extends LinesFromFile {
   def collectMarkdownFrom(s: String)(
       implicit executionContext: ExecutionContext) =
     fromFile(s).map(lines =>
-      new Taker(taking.copy(linesCollectorOpt = Some(Filters.MARKDOWN(lines)))))
+      new Taker(taking.copy(linesCollectorOpt = Some(MARKDOWN(lines)))))
 
   def title(title: String) =
     takeMarkdown(Seq(s"# ${title} #"))
@@ -59,19 +85,17 @@ trait CollectorFilter extends LinesFromFile {
             ++ lines
         )))
 
-  def fromMark(mark: String,file:String,prefix:Boolean): Taker =
-    if(prefix)
-    applyFilter(
-      (filterMarker(mark) _)
-      ->
-        (prefixer(mark,file) _)
-
-    )
-  else
+  def fromMark(mark: String, file: String, prefix: Boolean): Taker =
+    if (prefix)
+      applyFilter(
+        (filterMarker(mark) _)
+          ->
+            (prefixer(mark, file) _)
+      )
+    else
       applyFilter(
         (filterMarker(mark) _)
       )
-
 
   def all(): Taker =
     applyFilter(Filters.ALL)

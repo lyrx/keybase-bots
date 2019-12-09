@@ -2,12 +2,14 @@ package com.lyrx.text.processing.books
 
 import com.lyrx.text.processing.Taker
 
+import scala.concurrent.Future
+
 trait CollectKoblach extends BooksBase  {
   val taker:Taker
 
 
 
-  def collect()(implicit aroot:String,withPrefix:Boolean) = taker
+  def collect()(implicit aroot:String,withPrefix:Boolean):Future[Taker] = taker
     .collectMarkdownMarks(
       s"${aroot}/novel.md",
        "t")
@@ -23,5 +25,6 @@ trait CollectKoblach extends BooksBase  {
     .col(
         s"attic2/ki2i.md",
         "kii")
+    .allFrom("attic2/identity.md")
 
 }

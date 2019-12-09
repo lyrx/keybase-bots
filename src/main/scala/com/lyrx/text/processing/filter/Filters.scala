@@ -15,6 +15,7 @@ object Filters {
   val R7 = """\[(\d+\.\d\d\d\d\d)\].*""".r
 
   val IMGR = """\s*img\s+([\w\d.]+).*""".r
+  val YOUTUBE = """\s*youtube\s+([\w\d.]+).*""".r
 
   implicit class PimmpedMapping(m: MAPPING) {
 
@@ -38,7 +39,10 @@ object Filters {
       })
       .flatten
 
-  def MARKDOWN: MAPPING = concatFilters(MDSKIPDASHES, IMG)
+  def MARKDOWN: MAPPING = concatFilters(
+    MDSKIPDASHES,
+    IMG,
+    YOUTUBEFILTER)
 
   def MDSKIPDASHES: Lines => Lines =
     (s) =>
@@ -112,6 +116,27 @@ object Filters {
             case _          => line
         }
     )
+
+
+  val YOUTUBEFILTER: MAPPING =
+    (s) =>
+      s.map(
+        line =>
+          line match {
+            case YOUTUBE(name) => s"""<iframe
+                                     |src="https://www.youtube.com/embed/${name}?autoplay=1"
+                                     |frameborder="0"
+                                     |allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                     |allowfullscreen></iframe>""".stripMargin
+            case _          => line
+          }
+      )
+
+
+
+
+
+
 
   def prefixer(marker: String,file:String)(in: Seq[String]) =if(
     !in.isEmpty)

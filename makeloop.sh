@@ -2,6 +2,6 @@
 while true
 do
         date;make  allchunk
-	sleep 20
+	sleep 5
 done
  
