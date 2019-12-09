@@ -1,7 +1,7 @@
 #!/bin/bash
 while true
 do
-        date;make  chunk
+        date;make  allchunk
 	sleep 20
 done
  

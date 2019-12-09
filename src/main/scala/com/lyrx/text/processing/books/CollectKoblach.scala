@@ -7,7 +7,7 @@ trait CollectKoblach extends BooksBase  {
 
 
 
-  def collect()(implicit aroot:String) = taker
+  def collect()(implicit aroot:String,withPrefix:Boolean) = taker
     .collectMarkdownMarks(
       s"${aroot}/novel.md",
        "t")
@@ -20,5 +20,8 @@ trait CollectKoblach extends BooksBase  {
     .col(
       s"attic2/aufwachen.md",
       "sss")
+    .col(
+        s"attic2/ki2i.md",
+        "kii")
 
 }

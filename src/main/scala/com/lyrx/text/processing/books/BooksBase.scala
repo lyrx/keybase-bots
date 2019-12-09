@@ -25,7 +25,10 @@ trait BooksBase {
 
   implicit class FutureTaker(taker:Future[Taker]){
 
-    def col(file:String,prefix:String)(implicit aroot:String)=
+    def col(file:String,prefix:String)(
+      implicit aroot:String,
+      withPrefix:Boolean
+    )=
       taker.flatMap(_.
         collectMarkdownMarks(
           if(file.startsWith("/"))

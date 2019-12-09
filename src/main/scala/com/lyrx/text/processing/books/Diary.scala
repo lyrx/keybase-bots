@@ -22,7 +22,7 @@ trait Diary {
             "images/IMG_1948.jpeg",
             "Weihnachtsbaum des Bonifatius-Heims"
           )
-          .fromMark("d1",ttagebuch)
+          .fromMark("d1",ttagebuch,false)
           .writeToPath(s"${diary}/mydiary.md")
           .flatMap(t=>t.mdAndHTML())
       )

@@ -9,11 +9,14 @@ trait Kriegskindeskind extends BooksBase {
   val kuendigung: String
 
 
+  implicit val withPrefixx:Boolean=true
 
   def krieg() =
     Taker()
       .id("kriegskindeskind")
-      .collectMarkdownMarks(s"${kind}/Kriegskindeskind.md", "krd")
+      .collectMarkdownMarks(
+        s"${kind}/Kriegskindeskind.md",
+        "krd")
 
       .flatMap(_.writeToPath(s"${kind}/generated.md"))
       .flatMap(_.mdAndHTML())

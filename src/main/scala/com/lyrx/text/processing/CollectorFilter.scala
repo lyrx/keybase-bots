@@ -14,23 +14,23 @@ trait CollectorFilter extends LinesFromFile {
       (FOLDLINES -> TRIMLINES -> REDUCE)(lines))))
 
 
-  def collectMarkdown(file: String, marks: Seq[String])(
+  def collectMarkdown(file: String, marks: Seq[String],prefix:Boolean)(
       implicit executionContext: ExecutionContext) = {
     val collection: Future[Taker] = collectMarkdownFrom(s"${file}")
     marks
       .foldLeft(collection: Future[Taker])(
-        (f, mark) => f.map(_.fromMark(mark,file))
+        (f, mark) => f.map(_.fromMark(mark,file,prefix))
       )
       .map(_.beautifyLines())
   }
 
   def collectMarkdownMarks(file: String, prefix: String)(
-      implicit executionContext: ExecutionContext) =
+      implicit executionContext: ExecutionContext, withPrefix:Boolean) =
     collectMarkdown(
       file,
       (1 to 40).map(num => {
         s"${prefix}${num}"
-      })
+      }),withPrefix
     )
 
   def withFilter(f: Lines => Lines) =
@@ -59,13 +59,19 @@ trait CollectorFilter extends LinesFromFile {
             ++ lines
         )))
 
-  def fromMark(mark: String,file:String): Taker =
+  def fromMark(mark: String,file:String,prefix:Boolean): Taker =
+    if(prefix)
     applyFilter(
       (filterMarker(mark) _)
       ->
         (prefixer(mark,file) _)
 
     )
+  else
+      applyFilter(
+        (filterMarker(mark) _)
+      )
+
 
   def all(): Taker =
     applyFilter(Filters.ALL)

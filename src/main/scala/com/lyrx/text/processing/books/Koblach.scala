@@ -7,6 +7,7 @@ import scala.concurrent.Future
 trait Koblach extends BooksBase with CollectKoblach {
 
   implicit val aroot: String = s"${kuendigung}/koblach"
+  implicit val withPrefix:Boolean=true
 
   override val taker: Taker = Taker()
     .id("koblach")
