@@ -113,6 +113,13 @@ object Filters {
         }
     )
 
+  def prefixer(marker: String,file:String)(in: Seq[String]) =if(
+    !in.isEmpty)
+    s"**[[${marker}:${file}]]**" +: in
+  else
+    in
+
+
   def filterMarker(marker: String)(in: Seq[String]): Seq[String] =
     in.dropWhile(!_.matches(marker)).drop(1).takeWhile(!_.matches(marker))
 

@@ -6,76 +6,72 @@ import com.lyrx.text.processing.filter.{Filters, LineFilter, LinesFromFile}
 import scala.concurrent.{ExecutionContext, Future}
 import Filters._
 
-
 trait CollectorFilter extends LinesFromFile {
   val taking: Taking
 
-
-  def beautifyLines()=new Taker(taking.
-    copy(linesOpt = taking.linesOpt.map(
-      lines => (FOLDLINES -> TRIMLINES -> REDUCE)(lines))))
-
+  def beautifyLines() =
+    new Taker(taking.copy(linesOpt = taking.linesOpt.map(lines =>
+      (FOLDLINES -> TRIMLINES -> REDUCE)(lines))))
 
 
-  def collectMarkdown(file:String,
-              marks:Seq[String])(implicit executionContext: ExecutionContext)={
-    val collection=collectMarkdownFrom(s"${file}")
-    marks.foldLeft(collection:Future[Taker])(
-      (f,mark)=>f.map(_.fromMark(mark))
-    ).map(_.beautifyLines())
+  def collectMarkdown(file: String, marks: Seq[String])(
+      implicit executionContext: ExecutionContext) = {
+    val collection: Future[Taker] = collectMarkdownFrom(s"${file}")
+    marks
+      .foldLeft(collection: Future[Taker])(
+        (f, mark) => f.map(_.fromMark(mark,file))
+      )
+      .map(_.beautifyLines())
   }
 
-  def collectMarkdownMarks(file:String,prefix:String)(implicit executionContext: ExecutionContext)=
+  def collectMarkdownMarks(file: String, prefix: String)(
+      implicit executionContext: ExecutionContext) =
     collectMarkdown(
-    file,
-    (1 to 40).map(num=>{
-      s"${prefix}${num}"
-    })
-  )
-
-
+      file,
+      (1 to 40).map(num => {
+        s"${prefix}${num}"
+      })
+    )
 
   def withFilter(f: Lines => Lines) =
     new Taker(taking.copy(filterOpt = Some(f)))
 
-  def collectMarkdownFrom(s: String)(implicit executionContext: ExecutionContext) =
+  def collectMarkdownFrom(s: String)(
+      implicit executionContext: ExecutionContext) =
     fromFile(s).map(lines =>
       new Taker(taking.copy(linesCollectorOpt = Some(Filters.MARKDOWN(lines)))))
 
-  def title(title:String)=
+  def title(title: String) =
     takeMarkdown(Seq(s"# ${title} #"))
 
-  def img(src:String,descr:String)=
-    takeMarkdown(Seq(
-      s"![${descr}](${src})",
-      "\n"
-    ))
+  def img(src: String, descr: String) =
+    takeMarkdown(
+      Seq(
+        s"![${descr}](${src})",
+        "\n"
+      ))
 
+  def takeMarkdown(lines: Seq[String]) =
+    new Taker(
+      taking.copy(
+        linesOpt = Some(
+          taking.linesOpt.getOrElse(Seq())
+            ++ lines
+        )))
 
-  def takeMarkdown(lines:Seq[String])=
-    new Taker(taking.copy(linesOpt =
-      Some(
-        taking.linesOpt.getOrElse(Seq())
-          ++ lines
-      )))
-
-
-
-  def fromMark(mark: String): Taker =
+  def fromMark(mark: String,file:String): Taker =
     applyFilter(
-          Filters.filterMarker(mark) _)
+      (filterMarker(mark) _)
+      ->
+        (prefixer(mark,file) _)
+
+    )
 
   def all(): Taker =
     applyFilter(Filters.ALL)
 
-  def applyFilter(f: Lines=>Lines): Taker =
-    new Taker(
-      taking.copy(
-        filterOpt = Some(f))).
-      applyCollectorFilter()
-
-
-
+  def applyFilter(f: Lines => Lines): Taker =
+    new Taker(taking.copy(filterOpt = Some(f))).applyCollectorFilter()
 
   def applyCollectorFilter() =
     taking.filterOpt

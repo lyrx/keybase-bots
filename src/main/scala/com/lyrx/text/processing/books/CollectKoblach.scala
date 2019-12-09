@@ -9,7 +9,7 @@ trait CollectKoblach extends BooksBase  {
 
   def collect()(implicit aroot:String) = taker
     .collectMarkdownMarks(
-      s"novel.md",
+      s"${aroot}/novel.md",
        "t")
     .col(
       s"${kind}/Kriegskindeskind.groovy",
