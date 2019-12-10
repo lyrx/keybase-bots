@@ -9,6 +9,9 @@ import scala.concurrent.{ExecutionContext, Future}
 trait BooksBase {
   val output = "/Users/alex/output"
 
+  implicit val aroot: String
+  implicit val withPrefix:Boolean
+  val taker:Taker
 
   implicit val exc = ExecutionContext.global
   val resources =
@@ -23,7 +26,18 @@ trait BooksBase {
 
 
 
+
+
+
+
   implicit class FutureTaker(taker:Future[Taker]){
+
+    def finish()(
+      implicit aroot:String) = taker.flatMap(_.
+        beautifyLines().
+        writeToPath(s"${aroot}/generated.md"))
+        .flatMap(_.mdAndHTML())
+
 
     def title(s:String) = taker.map(
       _.title(s)
@@ -42,7 +56,7 @@ trait BooksBase {
 
 
     def allFrom(file:String)(
-      implicit aroot:String,hasPrefix:Boolean
+      implicit aroot:String
     )=taker.flatMap(t=>t.allFrom(
       expandFile(file)
     ))
