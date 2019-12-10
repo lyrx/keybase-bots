@@ -12,6 +12,9 @@ trait BooksBase {
   implicit val aroot: String
   implicit val withPrefix:Boolean
   val taker:Taker
+  def collect()(implicit aroot:String,withPrefix:Boolean):Future[Taker]
+
+
 
   implicit val exc = ExecutionContext.global
   val resources =
@@ -28,6 +31,7 @@ trait BooksBase {
 
 
 
+  def generate() = collect().finish()
 
 
   implicit class FutureTaker(taker:Future[Taker]){

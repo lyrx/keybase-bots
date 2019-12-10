@@ -4,16 +4,7 @@ import com.lyrx.text.processing.books._
 
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 @JSExportTopLevel("Chunker")
-object Main
-    extends Chunker
-    with BooksBase
-    with KarlMayBooks
-    with DickensBooks
-    with Haesschen
-    with Philosophie
-    with Koblach
-    with Diary
-    with Kriegskindeskind {
+object Main extends Koblach {
 
   @JSExport
   def initt() = {
@@ -22,8 +13,8 @@ object Main
     //traktatus
     //doDickens()
     //generate(s"${books}/FriedrichSchiller")("aesthetik")
-    doKoblach
-    krieg()
+    generate()
+
     //doDiary()
     //doHegel()
     //haselis()

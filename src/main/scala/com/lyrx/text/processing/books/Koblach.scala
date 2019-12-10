@@ -6,14 +6,15 @@ import scala.concurrent.Future
 
 trait Koblach extends BooksBase  {
 
-  override implicit val aroot: String = s"${kuendigung}/koblach"
+  val aid="koblach"
+  override implicit val aroot: String = s"${kuendigung}/${aid}"
   override implicit val withPrefix:Boolean=true
-  override val taker: Taker = Taker().id("koblach")
+  override val taker: Taker = Taker().id(aid)
 
 
-  def doKoblach() = collect().finish()
 
-  def collect()(implicit aroot:String,withPrefix:Boolean):Future[Taker] = taker
+
+  override def collect()(implicit aroot:String,withPrefix:Boolean):Future[Taker] = taker
     .collectMarkdownMarks(
       s"${aroot}/novel.md",
       "t")
