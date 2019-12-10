@@ -75,7 +75,10 @@ trait CollectorFilter extends LinesFromFile {
   def collectMarkdownFrom(s: String)(
       implicit executionContext: ExecutionContext) =
     fromFile(s).map(lines =>
-      new Taker(taking.copy(linesCollectorOpt = Some(MARKDOWN(lines)))))
+      new Taker(taking.copy(
+        linesCollectorOpt = Some(MARKDOWN(lines)),
+        mdInputPathOpt =Some(s)
+      )))
 
   def title(title: String) =
     takeMarkdown(Seq(s"# ${title} #"))

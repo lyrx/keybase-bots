@@ -9,25 +9,35 @@ import scala.concurrent.{ExecutionContext, Future}
 trait BooksBase {
   val output = "/Users/alex/output"
 
-  implicit val aroot: String
-  implicit val withPrefix:Boolean
-  val taker:Taker
-  def collect()(implicit aroot:String,withPrefix:Boolean):Future[Taker]
 
+  implicit val withPrefix:Boolean
+  def collect()(implicit aroot:String,withPrefix:Boolean):Future[Taker]
+  def cid():String
 
 
   implicit val exc = ExecutionContext.global
+
   val resources =
     "/Users/alex/git/texte/projects/lyrxgenerator/src/main/resources"
+  val books = s"${resources}/books"
 
   val creative = s"${resources}/creative"
+  val kind = s"${creative}/derjunge"
+
   val kuendigung: String = s"${creative}/kuendigung"
   val ideen = s"${kuendigung}/ideen"
   val pyramids = s"${kuendigung}/pyramids"
-  val books = s"${resources}/books"
-  val kind = s"${creative}/derjunge"
+
+  implicit val aroot: String = s"${kuendigung}/${cid()}"
 
 
+
+
+
+
+
+
+   val taker: Taker = Taker().id(cid())
 
 
 

@@ -6,10 +6,10 @@ import scala.concurrent.Future
 
 trait Koblach extends BooksBase  {
 
-  val aid="koblach"
-  override implicit val aroot: String = s"${kuendigung}/${aid}"
+  override def cid()="koblach"
+
   override implicit val withPrefix:Boolean=true
-  override val taker: Taker = Taker().id(aid)
+
 
 
 
