@@ -13,11 +13,7 @@ trait CollectorFilter extends LinesFromFile {
     new Taker(taking.copy(linesOpt = taking.linesOpt.map(lines =>
       (FOLDLINES -> TRIMLINES -> REDUCE)(lines))))
 
-  def withMarkdownPreprocess() =
-    new Taker(
-      taking.copy(
-        linesOpt = taking.linesOpt.map(MARKDOWN(_))
-      ))
+
 
   def withPrefix(p: String) =
     new Taker(
@@ -32,8 +28,18 @@ trait CollectorFilter extends LinesFromFile {
       .foldLeft(collection: Future[Taker])(
         (f, mark) => f.map(_.fromMark(mark, file, prefix))
       )
-
   }
+
+  def collectChapter(file: String, chapter: String, prefix: Boolean)(
+    implicit executionContext: ExecutionContext) = {
+    val collection: Future[Taker] = collectMarkdownFrom(s"${file}")
+    collection.map(t=>t.fromChapter(
+      chapter,file,prefix
+    ))
+  }
+
+
+
 
   def collectMarkdownMarks(file: String, prefix: String)(
       implicit executionContext: ExecutionContext,
@@ -83,17 +89,43 @@ trait CollectorFilter extends LinesFromFile {
             ++ lines
         )))
 
-  def fromMark(mark: String, file: String, prefix: Boolean): Taker =
+  def fromMark(amark: String, afile: String, aprefix: Boolean): Taker =
+    fromFilter(
+      mark = amark,
+      file = afile,
+      prefix =aprefix,
+      filter =(filterMarker(amark) _)
+    )
+
+
+  def fromChapter(chapter: String, afile: String, aprefix: Boolean): Taker =
+    fromFilter(
+      mark = chapter,
+      file = afile,
+      prefix = aprefix,
+      filter = CHAPTER(chapter))
+
+
+
+  def fromFilter(
+                  mark: String,
+                  file: String,
+                  prefix: Boolean,
+                  filter:MAPPING
+                ): Taker =
     if (prefix)
       applyFilter(
-        (filterMarker(mark) _)
+        filter
           ->
-            (prefixer(mark, file) _)
+          (prefixer(mark, file) _)
       )
     else
       applyFilter(
-        (filterMarker(mark) _)
+        filter
       )
+
+
+
 
   def all(): Taker =
     applyFilter(Filters.ALL)

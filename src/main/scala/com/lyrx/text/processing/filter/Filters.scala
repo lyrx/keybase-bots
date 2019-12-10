@@ -107,6 +107,10 @@ object Filters {
     })
   }
 
+  def CHAPTER(contains:String):MAPPING = (seq)=>seq.
+  dropWhile(line=> !(line.trim.startsWith("#") &&  line.contains(contains)) )
+    .takeWhile( line => !(line.trim.startsWith("#")))
+
   def IMG: MAPPING =
     (s) =>
       s.map(

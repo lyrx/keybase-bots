@@ -35,10 +35,7 @@ trait BooksBase {
     )=
       taker.flatMap(_.
         collectMarkdownMarks(
-          if(file.startsWith("/"))
-            s"${file}"
-          else
-            s"${aroot}/${file}"
+          expandFile(file)
           ,
           prefix
         ))
@@ -47,12 +44,24 @@ trait BooksBase {
     def allFrom(file:String)(
       implicit aroot:String,hasPrefix:Boolean
     )=taker.flatMap(t=>t.allFrom(
-      if(file.startsWith("/"))
-        s"${file}"
-      else
-        s"${aroot}/${file}"
+      expandFile(file)
     ))
 
+    private def expandFile(file:String)(
+                          implicit aroot:String)
+    =  if(file.startsWith("/"))
+      s"${file}"
+    else
+      s"${aroot}/${file}"
+
+
+
+    def chapter(file:String,chapter:String)(
+      implicit aroot:String,hasPrefix:Boolean
+    )=taker.flatMap(_.collectChapter(
+     file = expandFile(file),
+        chapter = chapter,
+        hasPrefix))
 
 
   }
