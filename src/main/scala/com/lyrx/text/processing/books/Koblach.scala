@@ -15,7 +15,7 @@ trait Koblach extends BooksBase  {
 
 
   override def collect()(implicit aroot:String,withPrefix:Boolean):Future[Taker] = taker
-    .collectMarkdownMarks(
+    .coll(
       s"${aroot}/novel.md",
       "t")
     .col(

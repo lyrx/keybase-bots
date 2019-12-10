@@ -47,7 +47,7 @@ trait CollectorFilter extends LinesFromFile {
 
 
 
-  def collectMarkdownMarks(file: String, prefix: String)(
+  def coll(file: String, prefix: String)(
       implicit executionContext: ExecutionContext,
       withPrefix: Boolean) =
     collectMarkdown(

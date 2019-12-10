@@ -10,11 +10,10 @@ trait Pyramids extends BooksBase {
 
   override implicit val withPrefix: Boolean = false
 
-  override def collect()(implicit aroot: String,
-                         withPrefix: Boolean): Future[Taker] =
+  override def collect(
+      )(implicit aroot: String, withPrefix: Boolean):
+       Future[Taker] =
     taker
-      .collectMarkdownFrom(
-        s"${aroot}/usecase.md")
-      .map(_.all())
+      .coll(s"${aroot}/usecase.md", "sss")
 
 }

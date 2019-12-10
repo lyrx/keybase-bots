@@ -62,7 +62,7 @@ trait BooksBase {
       withPrefix:Boolean
     )=
       taker.flatMap(_.
-        collectMarkdownMarks(
+        coll(
           expandFile(file)
           ,
           prefix
