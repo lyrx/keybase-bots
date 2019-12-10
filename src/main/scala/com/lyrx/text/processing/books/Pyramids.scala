@@ -13,7 +13,8 @@ trait Pyramids extends BooksBase {
   override def collect()(implicit aroot: String,
                          withPrefix: Boolean): Future[Taker] =
     taker
-      .collectMarkdownFrom(s"${aroot}/pyramids.md")
+      .collectMarkdownFrom(
+        s"${aroot}/usecase.md")
       .map(_.all())
 
 }
