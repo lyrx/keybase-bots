@@ -38,6 +38,12 @@ trait CollectorFilter extends LinesFromFile {
     ))
   }
 
+  def collectChapter(chapter: String, prefix: Boolean)(
+    implicit executionContext: ExecutionContext) = {
+    fromChapter(
+      chapter,taking.mdInputPathOpt.getOrElse(""),prefix
+    )
+  }
 
 
 

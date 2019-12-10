@@ -56,12 +56,26 @@ trait BooksBase {
 
 
 
-    def chapter(file:String,chapter:String)(
+    def chapter(afile:String,achapter:String)(
       implicit aroot:String,hasPrefix:Boolean
     )=taker.flatMap(_.collectChapter(
-     file = expandFile(file),
-        chapter = chapter,
+     file = expandFile(afile),
+        chapter = achapter,
         hasPrefix))
+
+    def chapter(achapter:String)(
+      implicit aroot:String,hasPrefix:Boolean
+    )=taker.map(_.collectChapter(
+      chapter = achapter,
+      hasPrefix))
+
+
+
+
+    def take(file:String)(
+      implicit aroot:String) = taker.flatMap(
+      _.collectMarkdownFrom(expandFile(file))
+    )
 
 
   }
