@@ -8,7 +8,7 @@ trait Ideen extends BooksBase  {
 
   override def cid()="ideen"
 
-  override implicit val withPrefix:Boolean=true
+  override implicit val withPrefix:Boolean=false
 
 
 
