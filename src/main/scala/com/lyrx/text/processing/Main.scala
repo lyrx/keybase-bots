@@ -9,7 +9,8 @@ object Main extends Koblach {
 
   val generators:Seq[BooksBase] = Seq(
     new Koblach {},
-    new Ideen{}
+    new Ideen{},
+    new Pyramids {}
   )
 
 
