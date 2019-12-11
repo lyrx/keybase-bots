@@ -76,7 +76,7 @@ trait CollectorFilter extends LinesFromFile {
       implicit executionContext: ExecutionContext) =
     fromFile(s).map(lines =>
       new Taker(taking.copy(
-        linesCollectorOpt = Some(MARKDOWN(lines)),
+        linesCollectorOpt = Some(MARKDOWN(s"https://ipfs.lyrx.de/ipns/QmS9RqAEWd4fKNiDCRgDKnWT3mDB5q9VkXsZJFCcw5gya5/html/${taking.idOpt.get}")(lines)),
         mdInputPathOpt =Some(s)
       )))
 

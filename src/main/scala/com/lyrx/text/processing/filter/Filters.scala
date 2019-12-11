@@ -39,9 +39,9 @@ object Filters {
       })
       .flatten
 
-  def MARKDOWN: MAPPING = concatFilters(
+  def MARKDOWN(base:String): MAPPING = concatFilters(
     MDSKIPDASHES,
-    IMG,
+    IMG(base),
     YOUTUBEFILTER)
 
   def MDSKIPDASHES: Lines => Lines =
@@ -116,12 +116,12 @@ object Filters {
     r.head +: r.tail.takeWhile( line => !(line.trim.startsWith("#")))
   }
 
-  def IMG: MAPPING =
+  def IMG(base:String): MAPPING =
     (s) =>
       s.map(
         line =>
           line match {
-            case IMGR(name) => s"![](images/${name})"
+            case IMGR(name) => s"![](${base}/images/${name})"
             case _          => line
         }
     )
