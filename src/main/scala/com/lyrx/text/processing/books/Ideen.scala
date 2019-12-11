@@ -13,8 +13,8 @@ trait Ideen extends BooksBase {
   override def collect()(implicit aroot: String,
                          withPrefix: Boolean): Future[Taker] =
     taker
-      .collectMarkdownFrom(s"${aroot}/ideen.md")
-      .chapter("China")
-      .chapter("Manipulation")
+      .coll(s"${aroot}/ideen.md","sss")
+
+
 
 }
