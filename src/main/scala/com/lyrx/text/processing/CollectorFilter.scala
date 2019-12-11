@@ -62,8 +62,11 @@ trait CollectorFilter extends LinesFromFile {
   def reducePath(path:String)= {
     taking.idOpt.map(id=>{
       val index = path.indexOf(id)
+      val index2 = path.indexOf("creative")
       if(index >= 0)
         path.substring(index)
+      else if(index2 >= 0)
+        path.substring(index2)
       else
         path
     }).getOrElse(path)
@@ -85,7 +88,7 @@ trait CollectorFilter extends LinesFromFile {
     new Taker(taking.copy(filterOpt = Some(f)))
 
 
-  private def baseURL():String=s"${Main.GATEWAY}/${Main.SNIPPETS()}/html/${taking.idOpt.get}"
+  private def baseURL():String=s"https://${Main.GATEWAY}/${Main.SNIPPETS()}/html/${taking.idOpt.get}"
 
   def collectMarkdownFrom(s: String)(
       implicit executionContext: ExecutionContext) =
