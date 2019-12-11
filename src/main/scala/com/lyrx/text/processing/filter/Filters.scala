@@ -127,13 +127,23 @@ object Filters {
     )
 
 
+  /*
+
+  <iframe width="1280" height="720"
+  src="https://www.youtube.com/embed/Pls_q2aQzHg"
+  frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen></iframe>
+
+   */
+
   val YOUTUBEFILTER: MAPPING =
     (s) =>
       s.map(
         line =>
           line match {
-            case YOUTUBE(name) => s"""<iframe
-                                     |src="https://www.youtube.com/embed/${name}?autoplay=1"
+            case YOUTUBE(name) => s"""<iframe   width="1280" height="720"
+                                     |src="https://www.youtube.com/embed/${name}?autoplay=0"
+                                     |src="https://www.youtube.com/embed/${name}?autoplay=0"
                                      |frameborder="0"
                                      |allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                                      |allowfullscreen></iframe>""".stripMargin

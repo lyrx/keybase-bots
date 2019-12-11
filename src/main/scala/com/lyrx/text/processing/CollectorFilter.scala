@@ -15,7 +15,7 @@ trait CollectorFilter extends LinesFromFile {
 
 
 
-  def withPrefix(p: String) =
+  def withaPrefix(p: String) =
     new Taker(
       taking.copy(
         linesCollectorOpt = taking.linesCollectorOpt.map(lines => s"${p}" +: lines)
@@ -58,13 +58,25 @@ trait CollectorFilter extends LinesFromFile {
       withPrefix
     )
 
+
+  def reducePath(path:String)= {
+    taking.idOpt.map(id=>{
+      val index = path.indexOf(id)
+      if(index >= 0)
+        path.substring(index)
+      else
+        path
+    }).getOrElse(path)
+  }
+
+
   def allFrom(file: String)(implicit executionContext: ExecutionContext,
                             withPrefix: Boolean) =
     collectMarkdownFrom(file)
       .map(
         t =>
           if (withPrefix)
-            t.withPrefix(s"[[${file}]]")
+            t.withaPrefix(s"[[${reducePath(file)}]]")
           else
           t).
       map(_.all())
@@ -72,11 +84,14 @@ trait CollectorFilter extends LinesFromFile {
   def withFilter(f: Lines => Lines) =
     new Taker(taking.copy(filterOpt = Some(f)))
 
+
+  private def baseURL():String=s"${Main.GATEWAY}/${Main.SNIPPETS()}/html/${taking.idOpt.get}"
+
   def collectMarkdownFrom(s: String)(
       implicit executionContext: ExecutionContext) =
     fromFile(s).map(lines =>
       new Taker(taking.copy(
-        linesCollectorOpt = Some(MARKDOWN(s"https://ipfs.lyrx.de/ipns/QmS9RqAEWd4fKNiDCRgDKnWT3mDB5q9VkXsZJFCcw5gya5/html/${taking.idOpt.get}")(lines)),
+        linesCollectorOpt = Some(MARKDOWN(baseURL())(lines)),
         mdInputPathOpt =Some(s)
       )))
 
@@ -126,7 +141,7 @@ trait CollectorFilter extends LinesFromFile {
       applyFilter(
         filter
           ->
-          (prefixer(mark, file) _)
+          (prefixer(mark, reducePath(file)) _)
       )
     else
       applyFilter(
