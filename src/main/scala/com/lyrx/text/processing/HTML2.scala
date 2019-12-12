@@ -8,6 +8,18 @@ trait HTML2 extends Generator with IOTrait{
 
   def htmlFragPath(aId: String) = s"${taking.outPath}/html/${aId}"
 
+
+  def writeHTML(inFile:String)(implicit executionContext: ExecutionContext) =
+    taking.idOpt
+      .map(id =>
+        mmkdirp(htmlFragPath(id)).flatMap(dir =>
+          pandoc(inFile,s"${dir}/${id}.html")
+          .map(r=>new Taker(taking))
+        )).getOrElse(Future{new Taker(taking)})
+
+
+
+
   def writeHTMLs()(implicit executionContext: ExecutionContext) =
     taking.idOpt
       .map(id =>
