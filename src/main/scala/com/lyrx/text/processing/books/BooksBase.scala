@@ -47,10 +47,14 @@ trait BooksBase {
   implicit class FutureTaker(taker:Future[Taker]){
 
     def finish()(
-      implicit aroot:String) = taker.flatMap(_.
+      implicit aroot:String) = {
+      val generated = s"${aroot}/generated.md"
+      taker.flatMap(_.
         beautifyLines().
-        writeToPath(s"${aroot}/generated.md"))
-        .flatMap(_.mdAndHTML())
+        writeToPath(generated).
+        flatMap(_.writeHTML(generated))
+      ).flatMap(_.mdAndHTML())
+    }
 
 
     def title(s:String) = taker.map(
