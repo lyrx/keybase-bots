@@ -1,6 +1,6 @@
 package com.lyrx.text.processing.books
 
-import com.lyrx.text.processing.Main.books
+
 import com.lyrx.text.processing.Taker
 import com.lyrx.text.processing.filter.Filters
 

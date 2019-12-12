@@ -9,7 +9,7 @@ trait Koblach extends BooksBase  {
   override def cid()="koblach"
 
   override implicit val withPrefix:Boolean=true
-
+  implicit override val aroot: String = s"${kuendigung}/${cid()}"
 
 
 

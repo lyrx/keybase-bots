@@ -7,7 +7,7 @@ import scala.concurrent.Future
 trait Ideen extends BooksBase {
 
   override def cid() = "ideen"
-
+  implicit override val aroot: String = s"${kuendigung}/${cid()}"
   override implicit val withPrefix: Boolean = false
 
   override def collect()(implicit aroot: String,

@@ -1,13 +1,13 @@
 package com.lyrx.text.processing.books
 
 import com.lyrx.text.processing.{Book, Taker}
-import com.lyrx.text.processing.Types.HeaderDetection
+
 
 import scala.collection.immutable
 import scala.concurrent.{ExecutionContext, Future}
 
-trait BooksBase {
-  val output = "/Users/alex/output"
+trait BooksBase extends Constants {
+
 
 
   implicit val withPrefix:Boolean
@@ -28,7 +28,7 @@ trait BooksBase {
   val ideen = s"${kuendigung}/ideen"
   val pyramids = s"${kuendigung}/pyramids"
 
-  implicit val aroot: String = s"${kuendigung}/${cid()}"
+  implicit val aroot: String
 
 
 
@@ -114,20 +114,6 @@ trait BooksBase {
 
 
 
-  val h: HeaderDetection = (line) => {
-    val s = line.trim
-
-    if (s.startsWith("####"))
-      4
-    else if (s.startsWith("###"))
-      3
-    else if (s.startsWith("##"))
-      2
-    else if (s.startsWith("#"))
-      1
-    else
-      0
-  }
 
   def generate(base: String)(id: String): Future[immutable.Iterable[Taker]] =
     Taker().id(id).mdPath(s"${base}/${id}.md").readMD().flatMap(_.mdAndHTML())
